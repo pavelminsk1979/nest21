@@ -114,9 +114,15 @@ dotenv.config();
       type: 'postgres',
       host: 'localhost',
       port: 5432,
+      /*      далее в pgAdmin   Servers->PostgreSQL->правой кнопкой
+            мыши->Properties->Connection----- и от сюда надо
+      значения перенести
+      ----------host: 'localhost',
+       ----------port: 5432,
+  ----------username: 'postgres',*/
       username: 'postgres',
       password: 'pavel',
-      database: 'newDatabase',
+      database: 'typeOrmDatabase',
       autoLoadEntities: true,
       synchronize: true,
     }),
