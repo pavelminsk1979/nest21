@@ -79,6 +79,7 @@ import { CommentSqlRepository } from './feature/comments/reposetories/comment-sq
 import { CommentQuerySqlRepository } from './feature/comments/reposetories/comment-query-sql-repository';
 import { LikeStatusForCommentSqlRepository } from './feature/like-status-for-comment/repositories/like-status-for-comment-sql-repository';
 import { LikeStatusForPostSqlRepository } from './feature/like-status-for-post/repositories/like-status-for-post-sql-repository';
+import { Usertyp } from './feature/users/domains/user.entity';
 
 dotenv.config();
 
@@ -109,23 +110,68 @@ dotenv.config();
       конфигурация */
       load: [configuration],
     }),
-
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
       port: 5432,
-      /*      далее в pgAdmin   Servers->PostgreSQL->правой кнопкой
-            мыши->Properties->Connection----- и от сюда надо
-      значения перенести
-      ----------host: 'localhost',
-       ----------port: 5432,
-  ----------username: 'postgres',*/
       username: 'postgres',
       password: 'pavel',
       database: 'typeOrmDatabase',
       autoLoadEntities: true,
       synchronize: true,
+      logging: ['query'],
     }),
+    TypeOrmModule.forFeature([Usertyp]),
+
+    /*    --------type: 'postgres',    определяет  базу данных
+    к которой подключаюсь
+    .........далее в pgAdmin   Servers->PostgreSQL->правой кнопкой
+    мыши->Properties->Connection----- и от сюда надо
+    значения перенести
+    ----------host: 'localhost',
+      ----------port: 5432,
+      ----------username: 'postgres',
+    
+      --------password: 'jjjj',------далее ПАРОЛЬ еще когда настраивал
+    базу данных- его создавал
+    
+    ---------database: 'typeOrmDatabase', название подбазыДанных
+    в базе postgres       уже внутри typeOrmDatabase будут
+    таблицы содержатся    И СОЗДАТЬ БАЗУ(подбазу)ДАННЫХ
+    НАДО РУКАМИ   В    pgAdmin
+    
+    -----  autoLoadEntities: true, использовать чтоб ненадобыло
+    перечислять вручную все cущности-классы- таблицы
+    Там где декоратор @Entity будет те и добавит
+    
+    ------synchronize: true,  когда в коде пропишу миграцию
+    и СОХРАНЮ-- тогда и запрос автоматом в базу
+    данных пойдет по изменениям (МИГРАЦИЯ- это
+    добавление колонок в таблице или изменения какието)
+    В ДАЛЬНЕЙШЕМ ЭТО СВОЙСТВО ИЗМЕНИМ НА БОЛЕЕ ЛУЧШЕЕ
+    
+    ---  logging: ['query'],  это свойство в Terminal
+    будет прописывать запрос к sql
+    
+    ------ TypeOrmModule.forFeature([]),---здесь регистрирую
+    все entity, через запятую
+    НО ЧАТ ГПТ НАПИСАЛ СЛЕДУЮЩЕЕ____------Если вы уже
+    используете autoLoadEntities: true и все ваши сущности
+    помечены декоратором @Entity, то использование
+    TypeOrmModule.forFeature([]) может быть избыточным.
+      В таком случае система сама загрузит все необходимые
+    сущности из вашего приложения.
+    
+      Таким образом, если вы уже используете autoLoadEntities: true
+    и все ваши сущности правильно помечены декоратором
+    @Entity, вы можете не использовать явное перечисление
+    сущностей через TypeOrmModule.forFeature([]), так как
+    они будут автоматически загружены.
+    --------ПОЭТОМУ УБИРАЮ TypeOrmModule.forFeature([])*/
+
+    /////////////////////////////////////////////////
+
+    ////////////////////////////////////////////
 
     /*   метод forRootAsync, предоставляемый модулем
     MongooseModule из @nestjs/mongoose  используется для асинхронной
