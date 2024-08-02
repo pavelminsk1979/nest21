@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { LoginInputModel } from '../api/pipes/login-input-model';
 import { UsersRepository } from '../../users/repositories/user-repository';
 import { User, UserDocument } from '../../users/domains/domain-user';
@@ -21,6 +21,7 @@ import { Request } from 'express';
 import { UsersSqlRepository } from '../../users/repositories/user-sql-repository';
 import { CreateUser, CreateUserWithId } from '../../users/api/types/dto';
 import { SecurityDeviceSqlRepository } from '../../security-device/repositories/security-device-sql-repository';
+import { UserSqlTypeormRepository } from '../../users/repositories/user-sql-typeorm-repository';
 
 @Injectable()
 export class AuthService {
@@ -35,6 +36,7 @@ export class AuthService {
     protected securityDeviceRepository: SecurityDeviceRepository,
     protected usersSqlRepository: UsersSqlRepository,
     protected securityDeviceSqlRepository: SecurityDeviceSqlRepository,
+    protected userSqlTypeormRepository: UserSqlTypeormRepository,
   ) {}
 
   async loginUser(loginInputModel: LoginInputModel, request: Request) {
@@ -137,33 +139,32 @@ export class AuthService {
   }
 
   async registrationUser(registrationInputModel: RegistrationInputModel) {
-    debugger;
     const { password, login, email } = registrationInputModel;
 
     /*   login и email  должны быть уникальные--поискать
      их в базе и если такие есть в базе то вернуть
      на фронт ошибку */
 
-    const isExistLogin = await this.usersSqlRepository.isExistLogin(login);
-
-    if (isExistLogin) {
-      throw new BadRequestException([
-        {
-          message: 'field login must be unique',
-          field: 'login',
-        },
-      ]);
-    }
-
-    const isExistEmail = await this.usersSqlRepository.isExistEmail(email);
-    if (isExistEmail) {
-      throw new BadRequestException([
-        {
-          message: 'field email must be unique',
-          field: 'email',
-        },
-      ]);
-    }
+    /*  const isExistLogin = await this.usersSqlRepository.isExistLogin(login);
+  
+      if (isExistLogin) {
+        throw new BadRequestException([
+          {
+            message: 'field login must be unique',
+            field: 'login',
+          },
+        ]);
+      }
+  
+      const isExistEmail = await this.usersSqlRepository.isExistEmail(email);
+      if (isExistEmail) {
+        throw new BadRequestException([
+          {
+            message: 'field email must be unique',
+            field: 'email',
+          },
+        ]);
+      }*/
 
     const passwordHash = await this.hashPasswordService.generateHash(password);
 
@@ -181,8 +182,7 @@ export class AuthService {
        Функция add принимает два аргумента: дату и объект с настройками добавления времени. В данном случае, первый аргумент - это текущая дата, полученная с помощью new Date(), а второй аргумент - это объект с настройками { hours: 1, minutes: 2 }, который указывает, что нужно добавить 1 час и 2 минуты к текущей дате*/
     };
 
-    const result: [] | null =
-      await this.usersSqlRepository.createNewUser(newUser);
+    const result = await this.userSqlTypeormRepository.createNewUser(newUser);
 
     /* после того как в базе данных сущность уже создана
  ответ фронту покачто не отправляю

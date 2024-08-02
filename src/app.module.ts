@@ -79,7 +79,9 @@ import { CommentSqlRepository } from './feature/comments/reposetories/comment-sq
 import { CommentQuerySqlRepository } from './feature/comments/reposetories/comment-query-sql-repository';
 import { LikeStatusForCommentSqlRepository } from './feature/like-status-for-comment/repositories/like-status-for-comment-sql-repository';
 import { LikeStatusForPostSqlRepository } from './feature/like-status-for-post/repositories/like-status-for-post-sql-repository';
-import { Usertyp } from './feature/users/domains/user.entity';
+import { Usertyp } from './feature/users/domains/usertyp.entity';
+import { Securitydevicetyp } from './feature/security-device/domains/securitydevicetype.entity';
+import { UserSqlTypeormRepository } from './feature/users/repositories/user-sql-typeorm-repository';
 
 dotenv.config();
 
@@ -121,7 +123,7 @@ dotenv.config();
       synchronize: true,
       logging: ['query'],
     }),
-    TypeOrmModule.forFeature([Usertyp]),
+    TypeOrmModule.forFeature([Usertyp, Securitydevicetyp]),
 
     /*    --------type: 'postgres',    определяет  базу данных
     к которой подключаюсь
@@ -332,6 +334,7 @@ dotenv.config();
     CommentQuerySqlRepository,
     LikeStatusForCommentSqlRepository,
     LikeStatusForPostSqlRepository,
+    UserSqlTypeormRepository,
   ],
 })
 /*export class AppModule {} в данном контексте

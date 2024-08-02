@@ -65,16 +65,16 @@ export class AuthController {
     }
   }
 
-  @UseGuards(VisitLimitGuard)
+  // @UseGuards(VisitLimitGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('registration')
   async handleRegistration(
     @Body() registrationInputModel: RegistrationInputModel,
   ) {
-    const result: [] | null = await this.authService.registrationUser(
+    const result = await this.authService.registrationUser(
       registrationInputModel,
     );
-    debugger;
+    console.log(result);
     if (result) {
       return;
     } else {
