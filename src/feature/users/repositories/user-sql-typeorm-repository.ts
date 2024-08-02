@@ -7,7 +7,8 @@ import { Usertyp } from '../domains/usertyp.entity';
 @Injectable()
 export class UserSqlTypeormRepository {
   constructor(
-    @InjectRepository(Usertyp) private readonly usertyp: Repository<Usertyp>,
+    @InjectRepository(Usertyp)
+    private readonly usertypRepository: Repository<Usertyp>,
   ) {}
 
   async createNewUser(newUser: CreateUser) {
@@ -19,14 +20,8 @@ export class UserSqlTypeormRepository {
     user.confirmationCode = newUser.confirmationCode;
     user.isConfirmed = newUser.isConfirmed;
     user.passwordHash = newUser.passwordHash;
-    const result = await this.usertyp.save(user);
+    const result = await this.usertypRepository.save(user);
     return result;
-
-    /*вернётся массив и в массиве одно значение
-     это будет обьект, и у этого обьекта будет ключ id,
-     или null если юзер не будет создан */
-    /*    if (!result) return null;
-        return result[0].id;*/
   }
 
   /*  async isExistLogin(login: string) {

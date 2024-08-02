@@ -74,7 +74,7 @@ export class AuthController {
     const result = await this.authService.registrationUser(
       registrationInputModel,
     );
-    console.log(result);
+
     if (result) {
       return;
     } else {
