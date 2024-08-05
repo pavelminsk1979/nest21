@@ -65,7 +65,7 @@ export class AuthController {
     }
   }
 
-  // @UseGuards(VisitLimitGuard)
+  @UseGuards(VisitLimitGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('registration')
   async handleRegistration(

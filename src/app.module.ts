@@ -82,6 +82,7 @@ import { LikeStatusForPostSqlRepository } from './feature/like-status-for-post/r
 import { Usertyp } from './feature/users/domains/usertyp.entity';
 import { Securitydevicetyp } from './feature/security-device/domains/securitydevicetype.entity';
 import { UserSqlTypeormRepository } from './feature/users/repositories/user-sql-typeorm-repository';
+import { SecurityDeviceSqlTypeormRepository } from './feature/security-device/repositories/security-device-sql-typeorm-repository';
 
 dotenv.config();
 
@@ -335,6 +336,7 @@ dotenv.config();
     LikeStatusForCommentSqlRepository,
     LikeStatusForPostSqlRepository,
     UserSqlTypeormRepository,
+    SecurityDeviceSqlTypeormRepository,
   ],
 })
 /*export class AppModule {} в данном контексте

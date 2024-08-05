@@ -1,8 +1,70 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../../src/app.module';
-import { applyAppSettings } from '../../src/settings/apply-app-settings';
+import { AppModule } from '../../../src/app.module';
+import { applyAppSettings } from '../../../src/settings/apply-app-settings';
 import request from 'supertest';
-import { UserManagerForTest } from '../utils/user-manager-for-test';
+import { EmailSendService } from '../../../src/common/service/email-send-service';
+import { MockEmailSendService } from '../../../src/common/service/mock-email-send-service';
+
+describe('tests for andpoint auth/login', () => {
+  let app;
+
+  beforeAll(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    })
+      .overrideProvider(EmailSendService)
+      .useValue(new MockEmailSendService())
+
+      .compile();
+
+    app = moduleFixture.createNestApplication();
+
+    applyAppSettings(app);
+
+    await app.init();
+
+    /*  //для очистки базы данных
+      await request(app.getHttpServer()).delete('/testing/all-data');*/
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  /*  ДЛЯ ТЕСТА  НАДО
+  -- запустить тест РЕГИСТРАЦИИ
+  -- потом ВЗЯТЬ ИЗ БАЗЫ ДАННЫХ
+  confirmationCode
+  "26e24b65-b7ce-410e-bb08-febe06e9674e"
+
+  напомню что имеется время протухания поэтому
+  надо сделать регистрацию и потом подтверждение с
+  новым-свежим кодом*/
+  it('registration-confirmation  user', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-confirmation')
+      .send({
+        code: '4a7b8e4f-ffcc-4391-99a5-a51ce6f4e69c',
+      })
+      .expect(204);
+  });
+
+  it('creat user and login  user', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        loginOrEmail: 'login27',
+        password: 'passwor27',
+      })
+      .expect(200);
+  });
+});
+
+/*import { Test, TestingModule } from '@nestjs/testing';
+import { AppModule } from '../../../src/app.module';
+import { applyAppSettings } from '../../../src/settings/apply-app-settings';
+import request from 'supertest';
+import { UserManagerForTest } from '../../utils/user-manager-for-test';
 
 describe('tests for andpoint auth/login', () => {
   let app;
@@ -46,7 +108,7 @@ describe('tests for andpoint auth/login', () => {
       .expect(200);
 
     expect(res.body).toHaveProperty('accessToken');
-    /*    если я положу  refreshToken в куку -вот так
+    /!*    если я положу  refreshToken в куку -вот так
          response.cookie('refreshToken', result.refreshToken, {
         httpOnly: true,
         secure: true,
@@ -55,7 +117,7 @@ describe('tests for andpoint auth/login', () => {
     
         свойство res.headers['set-cookie'] содержит
         массив строк, представляющих заголовки 'Set-Cookie',
-          включая куку 'refreshToken'.*/
+          включая куку 'refreshToken'.*!/
     const allCookies = res.headers['set-cookie'];
 
     console.log(allCookies[0].split(';')[0]);
@@ -108,4 +170,4 @@ describe('tests for andpoint auth/login', () => {
 
     //console.log(res.body);
   });
-});
+});*/

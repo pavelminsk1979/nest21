@@ -32,11 +32,11 @@ describe('tests for andpoint auth/login', () => {
   });
 
   it('registration  user', async () => {
-    const login1 = 'login28';
+    const login1 = 'login27';
 
-    const password1 = 'passwor28';
+    const password1 = 'passwor27';
 
-    const email1 = 'avelminsk28@mail.ru';
+    const email1 = 'avelminsk7@mail.ru';
 
     await request(app.getHttpServer())
       .post('/auth/registration')
@@ -48,17 +48,36 @@ describe('tests for andpoint auth/login', () => {
       .expect(204);
   });
 
-  /*  it('No login  user ', async () => {
-      const { login1, password1 } = expect.getState();
-  
-      await request(app.getHttpServer())
-        .post('/auth/login')
-        .send({
-          loginOrEmail: login1,
-          password: password1,
-        })
-        .expect(401);
-  
-      //console.log(res.body);
-    });*/
+  it('registration  user', async () => {
+    const login1 = 'login27';
+
+    const password1 = 'passwor23';
+
+    const email1 = 'avelminsk73@mail.ru';
+
+    await request(app.getHttpServer())
+      .post('/auth/registration')
+      .send({
+        login: login1,
+        password: password1,
+        email: email1,
+      })
+      .expect(400);
+  });
+  it('registration  user', async () => {
+    const login1 = 'login24';
+
+    const password1 = 'passwor22';
+
+    const email1 = 'avelminsk7@mail.ru';
+
+    await request(app.getHttpServer())
+      .post('/auth/registration')
+      .send({
+        login: login1,
+        password: password1,
+        email: email1,
+      })
+      .expect(400);
+  });
 });

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { LoginInputModel } from '../api/pipes/login-input-model';
 import { UsersRepository } from '../../users/repositories/user-repository';
 import { User, UserDocument } from '../../users/domains/domain-user';
@@ -22,6 +22,9 @@ import { UsersSqlRepository } from '../../users/repositories/user-sql-repository
 import { CreateUser, CreateUserWithId } from '../../users/api/types/dto';
 import { SecurityDeviceSqlRepository } from '../../security-device/repositories/security-device-sql-repository';
 import { UserSqlTypeormRepository } from '../../users/repositories/user-sql-typeorm-repository';
+import { Securitydevicetyp } from '../../security-device/domains/securitydevicetype.entity';
+import { SecurityDeviceSqlTypeormRepository } from '../../security-device/repositories/security-device-sql-typeorm-repository';
+import { Usertyp } from '../../users/domains/usertyp.entity';
 
 @Injectable()
 export class AuthService {
@@ -37,6 +40,7 @@ export class AuthService {
     protected usersSqlRepository: UsersSqlRepository,
     protected securityDeviceSqlRepository: SecurityDeviceSqlRepository,
     protected userSqlTypeormRepository: UserSqlTypeormRepository,
+    protected securityDeviceSqlTypeormRepository: SecurityDeviceSqlTypeormRepository,
   ) {}
 
   async loginUser(loginInputModel: LoginInputModel, request: Request) {
@@ -44,8 +48,8 @@ export class AuthService {
 
     /*в базе должен быть документ
     с приходящим емайлом или логином */
-    const user: CreateUserWithId | null =
-      await this.usersSqlRepository.findUserByLoginOrEmail(loginOrEmail);
+    const user: Usertyp | null =
+      await this.userSqlTypeormRepository.findUserByLoginOrEmail(loginOrEmail);
 
     if (!user) return null;
 
@@ -53,7 +57,7 @@ export class AuthService {
      * отправилось письмо на емайл для подтверждения емайла
      * и если подтвердит тогда флаг isConfirmed  сменится на true
      * и только потом можно ЗАЛОГИНИТСЯ */
-    if (user.isConfirmed === false) return null;
+    if (!user.isConfirmed) return null;
 
     const passwordHash = user.passwordHash;
 
@@ -120,16 +124,16 @@ export class AuthService {
 
     const nameDevice = request.headers['user-agent'] || 'Some Device';
 
-    const newSecurityDevice: SecurityDevice = {
+    const newSecurityDevice: Securitydevicetyp = {
       deviceId,
       issuedAtRefreshToken,
-      userId,
       ip,
       nameDevice,
+      usertyp: user,
     };
 
-    const securityDevice: CreateUserWithId =
-      await this.securityDeviceSqlRepository.createNewSecurityDevice(
+    const securityDevice: Securitydevicetyp =
+      await this.securityDeviceSqlTypeormRepository.createNewSecurityDevice(
         newSecurityDevice,
       );
 
@@ -141,30 +145,32 @@ export class AuthService {
   async registrationUser(registrationInputModel: RegistrationInputModel) {
     const { password, login, email } = registrationInputModel;
 
-    /*   login и email  должны быть уникальные--поискать
-     их в базе и если такие есть в базе то вернуть
-     на фронт ошибку */
+    /*      login и email  должны быть уникальные--поискать
+        их в базе и если такие есть в базе то вернуть
+        на фронт ошибку */
 
-    /*  const isExistLogin = await this.usersSqlRepository.isExistLogin(login);
-  
-      if (isExistLogin) {
-        throw new BadRequestException([
-          {
-            message: 'field login must be unique',
-            field: 'login',
-          },
-        ]);
-      }
-  
-      const isExistEmail = await this.usersSqlRepository.isExistEmail(email);
-      if (isExistEmail) {
-        throw new BadRequestException([
-          {
-            message: 'field email must be unique',
-            field: 'email',
-          },
-        ]);
-      }*/
+    const isExistLogin =
+      await this.userSqlTypeormRepository.isExistLogin(login);
+
+    if (isExistLogin) {
+      throw new BadRequestException([
+        {
+          message: 'field login must be unique',
+          field: 'login',
+        },
+      ]);
+    }
+
+    const isExistEmail =
+      await this.userSqlTypeormRepository.isExistEmail(email);
+    if (isExistEmail) {
+      throw new BadRequestException([
+        {
+          message: 'field email must be unique',
+          field: 'email',
+        },
+      ]);
+    }
 
     const passwordHash = await this.hashPasswordService.generateHash(password);
 
@@ -212,14 +218,15 @@ export class AuthService {
   ) {
     const { code } = registrationConfirmationInputModel;
 
-    const user = await this.usersSqlRepository.findUserByCode(code);
+    const user: CreateUserWithId | null =
+      await this.userSqlTypeormRepository.findUserByCode(code);
     if (!user) return false;
-    debugger;
-    if (user[0].isConfirmed === true) return false;
+
+    if (user.isConfirmed) return false;
 
     /*надо проверку даты сделать что еще не протухла*/
 
-    const expirationDate = new Date(user[0].expirationDate);
+    const expirationDate = new Date(user.expirationDate);
 
     /*-далее получаю милисекунды даты которая в базе лежала */
 
@@ -233,14 +240,10 @@ export class AuthService {
       return false;
     }
 
-    const isConfirmed = true;
+    user.isConfirmed = true;
 
-    const id = user[0].id;
-
-    const isChangeUser: boolean = await this.usersSqlRepository.changeUser(
-      isConfirmed,
-      id,
-    );
+    const isChangeUser: boolean =
+      await this.userSqlTypeormRepository.changeUser(user);
 
     return isChangeUser;
   }

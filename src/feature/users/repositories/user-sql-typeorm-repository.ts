@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateUser } from '../api/types/dto';
+import { CreateUser, CreateUserWithId } from '../api/types/dto';
 import { Usertyp } from '../domains/usertyp.entity';
 
 @Injectable()
@@ -35,5 +35,66 @@ export class UserSqlTypeormRepository {
     user.passwordHash = newUser.passwordHash;
     const result = await this.usertypRepository.save(user);
     return result;
+  }
+
+  async isExistLogin(login: string) {
+    const result = await this.usertypRepository.findOne({
+      where: { login: login },
+    });
+
+    /* в result будет или null или найденая сущность в базе в виде 
+     обьекта со свойствами*/
+
+    if (!result) return null;
+
+    return true;
+  }
+
+  async isExistEmail(email: string) {
+    const result = await this.usertypRepository.findOne({
+      where: { email: email },
+    });
+
+    /* в result будет или null или найденая сущность в базе в виде 
+     обьекта со свойствами*/
+
+    if (!result) return null;
+
+    return true;
+  }
+
+  async findUserByCode(code: string) {
+    const result: CreateUserWithId | null =
+      await this.usertypRepository.findOne({
+        where: { confirmationCode: code },
+      });
+
+    /* в result будет или null или найденая сущность в базе в виде
+     обьекта со свойствами*/
+
+    return result;
+  }
+
+  async changeUser(user: CreateUserWithId) {
+    const result = await this.usertypRepository.save(user);
+
+    /*  метод save() в TypeORM возвращает сохраненный объект, 
+        если операция прошла успешно, или undefined, 
+        если сохранение не удалось.*/
+
+    if (!result) return false;
+    return true;
+  }
+
+  async findUserByLoginOrEmail(loginOrEmail: string) {
+    const result = await this.usertypRepository.find({
+      where: [{ login: loginOrEmail }, { email: loginOrEmail }],
+    });
+
+    /* в переменной result будет содержаться массив
+     объектов пользователей, которые удовлетворяют 
+     условиям поиска по логину или почте*/
+    if (result.length === 0) return null;
+    return result[0];
   }
 }

@@ -1,21 +1,30 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../../src/app.module';
-import { applyAppSettings } from '../../src/settings/apply-app-settings';
+import { AppModule } from '../../../src/app.module';
+import { applyAppSettings } from '../../../src/settings/apply-app-settings';
 import request from 'supertest';
+import { EmailSendService } from '../../../src/common/service/email-send-service';
+import { MockEmailSendService } from '../../../src/common/service/mock-email-send-service';
 
-describe.skip('tests for andpoint auth/login', () => {
+describe('tests for andpoint auth/login', () => {
   let app;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(EmailSendService)
+      .useValue(new MockEmailSendService())
+
+      .compile();
 
     app = moduleFixture.createNestApplication();
 
     applyAppSettings(app);
 
     await app.init();
+
+    /*  //для очистки базы данных
+      await request(app.getHttpServer()).delete('/testing/all-data');*/
   });
 
   afterAll(async () => {
@@ -35,27 +44,8 @@ describe.skip('tests for andpoint auth/login', () => {
     await request(app.getHttpServer())
       .post('/auth/registration-confirmation')
       .send({
-        code: 'e31342f2-bfb7-4b96-84e4-73fdd54499a2',
+        code: '8a51988e-141f-4075-9f97-8c4b3e62bf83',
       })
       .expect(204);
   });
-
-  /*  it(' login  user ', async () => {
-      /!* эти значения установлены в файле
-         auth-registration.e2e-spec.ts*!/
-  
-      const login1 = 'login29';
-  
-      const password1 = 'passwor29';
-  
-      await request(app.getHttpServer())
-        .post('/auth/login')
-        .send({
-          loginOrEmail: login1,
-          password: password1,
-        })
-        .expect(200);
-  
-      //console.log(res.body);
-    });*/
 });
