@@ -123,7 +123,6 @@ export class AuthService {
      * get запрос на эндпоинт security/devices */
 
     const nameDevice = request.headers['user-agent'] || 'Some Device';
-
     const newSecurityDevice: Securitydevicetyp = {
       deviceId,
       issuedAtRefreshToken,
@@ -249,31 +248,26 @@ export class AuthService {
   }
 
   async registrationEmailResending(email: string) {
-    const user = await this.usersSqlRepository.findUserByLoginOrEmail(email);
-
-    if (!user) return false;
+    const user =
+      await this.userSqlTypeormRepository.findUserByLoginOrEmail(email);
     debugger;
-    if (user.isConfirmed === true) return false;
+    if (!user) return false;
 
-    //новая дата протухания
-    const newExpirationDate = add(new Date(), {
+    if (user.isConfirmed) return false;
+
+    /*новая дата протухания и ее сразу помещаю в ЮЗЕРА
+    которого из базы достал*/
+    user.expirationDate = add(new Date(), {
       hours: 1,
       minutes: 2,
     }).toISOString();
 
     //новый код подтверждения
     const newCode = randomCode();
+    user.confirmationCode = newCode;
 
-    /*  айдишка чтоб найти в таблице запись и изменить 
-      значения в двух колонках*/
-
-    const id = user.id;
-
-    const isChangeUser = await this.usersSqlRepository.findUserByIdAndCange(
-      id,
-      newCode,
-      newExpirationDate,
-    );
+    const isChangeUser: boolean =
+      await this.userSqlTypeormRepository.changeUser(user);
 
     if (!isChangeUser) return false;
 

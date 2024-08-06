@@ -20,6 +20,7 @@ export class SecurityDeviceSqlTypeormRepository {
     device.nameDevice = newDevice.nameDevice;
     device.ip = newDevice.ip;
     device.issuedAtRefreshToken = newDevice.issuedAtRefreshToken;
+    device.usertyp = newDevice.usertyp;
     const result = await this.securitydeviceRepository.save(device);
     return result;
   }

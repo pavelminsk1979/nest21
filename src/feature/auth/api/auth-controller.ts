@@ -109,6 +109,14 @@ export class AuthController {
 
   @UseGuards(VisitLimitGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
+
+  /*  если подтверждение регистрации НЕ ПРИШЛО 
+    НА ПОЧТУ ... 
+     -на этот эндпоинт повторно придет емаил
+     -проверю что в базе isConfirmed ===true
+     -cтавлю новую дату протухания
+     --новый КОД
+     -заново отправляю письмо на почту*/
   @Post('registration-email-resending')
   async handleRegistrationEmailResending(
     @Body()
