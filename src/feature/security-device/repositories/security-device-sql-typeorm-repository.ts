@@ -25,6 +25,33 @@ export class SecurityDeviceSqlTypeormRepository {
     return result;
   }
 
+  async findDeviceByIdAndDate(deviceId: string, issuedAtRefreshToken: string) {
+    const result = await this.securitydeviceRepository.findOne({
+      where: { deviceId, issuedAtRefreshToken },
+    });
+    /*  Если сущность  с таким deviceId
+     и issuedAtRefreshToken будет найдено в базе
+      данных, то в result будет содержаться
+       объект . Если ничего не будет найдено,
+        то result будет равен undefined*/
+
+    if (!result) return null;
+    return result;
+  }
+
+  async deleteDeviceByDeviceId(deviceId: string) {
+    const result = await this.securitydeviceRepository.delete({ deviceId });
+
+    /* если удаление не удалось, result может быть undefined 
+     или содержать информацию об ошибке,*/
+    if (!result) return false;
+    /*Если удаление прошло успешно, result
+    содержать объект DeleteResult
+    --можете получить доступ к количеству удаленных
+    записей так: result.affected.*/
+    return true;
+  }
+
   /*
     async findDeviceByIdAndDate(deviceId: string, issuedAtRefreshToken: string) {
       const result = await this.dataSource.query(

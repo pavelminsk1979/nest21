@@ -142,6 +142,18 @@ export class AuthController {
   @UseGuards(VisitLimitGuard)
   /*1003 конспект- дошанка*/
   @HttpCode(HttpStatus.NO_CONTENT)
+  /*
+  -ЕСЛИ ЗАБЫЛ ПАРОЛЬ -МОЖНО ВОСТАНОВИТЬ
+  -эндпоинт ожидает email
+  -найдет юзера в базе
+  --установит новый КОД и дату протухания этого кода
+  -отправит этот КОД на почту
+  ---ДАЛЕЕ СМЫСЛ ТАКОЙ ЧТО ИЗ ПОЧТЫ КОД
+  ДОЛЖЕН ПОПАСТЬ НА ФРОНТЕНД А НА ФРОНТЕНДЕ
+  ДОБАВЯТ К КОДУ НОВЫЙ ПАРОЛЬ
+  И ОТПРАВИТСЯ ЭТА ПАРОЧКА НА ЭНДПОИНТ 'auth\new-password'
+  И ТОЛЬКО там сменится passwordHash в базе у Юзера
+   */
   @Post('password-recovery')
   async handlePasswordRecovery(
     @Body()

@@ -6,6 +6,7 @@ import {
 import { SecurityDeviceRepository } from '../repositories/security-device-repository';
 import { SecurityDeviceSqlRepository } from '../repositories/security-device-sql-repository';
 import { SecurityDeviceSqlQueryRepository } from '../repositories/security-device-sql-query-repository';
+import { SecurityDeviceSqlTypeormRepository } from '../repositories/security-device-sql-typeorm-repository';
 
 @Injectable()
 export class SecurityDeviceService {
@@ -13,6 +14,7 @@ export class SecurityDeviceService {
     protected securityDeviceRepository: SecurityDeviceRepository,
     protected securityDeviceSqlRepository: SecurityDeviceSqlRepository,
     protected securityDeviceSqlQueryRepository: SecurityDeviceSqlQueryRepository,
+    protected securityDeviceSqlTypeormRepository: SecurityDeviceSqlTypeormRepository,
   ) {}
 
   async getAllDevicesCorrectUser(
@@ -100,7 +102,7 @@ export class SecurityDeviceService {
 
   async logout(deviceId: string, issuedAtRefreshToken: string) {
     const oneDevice =
-      await this.securityDeviceSqlRepository.findDeviceByIdAndDate(
+      await this.securityDeviceSqlTypeormRepository.findDeviceByIdAndDate(
         deviceId,
         issuedAtRefreshToken,
       );
@@ -110,6 +112,8 @@ export class SecurityDeviceService {
         "user didn't logout because refreshToken not exist in BD :andpoint-auth/logout,method - post",
       );
     }
-    return this.securityDeviceSqlRepository.deleteDeviceByDeviceId(deviceId);
+    return this.securityDeviceSqlTypeormRepository.deleteDeviceByDeviceId(
+      deviceId,
+    );
   }
 }

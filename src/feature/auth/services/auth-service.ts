@@ -290,7 +290,7 @@ export class AuthService {
   /* Востановление пароля через подтверждение по
    электронной почте.*/
   async passwordRecovery(email: string) {
-    const user = await this.usersRepository.findUserByEmail(email);
+    const user = await this.userSqlTypeormRepository.findUserByEmail(email);
 
     if (!user) return false;
 
@@ -305,9 +305,10 @@ export class AuthService {
 
     user.expirationDate = newExpirationDate;
 
-    const changeUser: UserDocument = await this.usersRepository.save(user);
+    const isChangeUser: boolean =
+      await this.userSqlTypeormRepository.changeUser(user);
 
-    if (!changeUser) return false;
+    if (!isChangeUser) return false;
 
     const letter = this.emailSendService.createLetterRecoveryPassword(newCode);
 
@@ -327,7 +328,8 @@ export class AuthService {
   async newPassword(newPasswordInputModel: NewPasswordInputModel) {
     const { newPassword, recoveryCode } = newPasswordInputModel;
     debugger;
-    const user = await this.usersRepository.findUserByCode(recoveryCode);
+    const user =
+      await this.userSqlTypeormRepository.findUserByCode(recoveryCode);
 
     if (!user) return false;
 
@@ -336,9 +338,10 @@ export class AuthService {
 
     user.passwordHash = newPasswordHash;
 
-    const changeUser: UserDocument = await this.usersRepository.save(user);
+    const isChangeUser: boolean =
+      await this.userSqlTypeormRepository.changeUser(user);
 
-    if (!changeUser) return false;
+    if (!isChangeUser) return false;
 
     return true;
   }

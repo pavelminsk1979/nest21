@@ -97,4 +97,16 @@ export class UserSqlTypeormRepository {
     if (result.length === 0) return null;
     return result[0];
   }
+
+  async findUserByEmail(email: string) {
+    const result = await this.usertypRepository.find({
+      where: { email },
+    });
+
+    /* в переменной result будет содержаться массив
+     объектов пользователей, которые удовлетворяют 
+     условиям поиска по логину или почте*/
+    if (result.length === 0) return null;
+    return result[0];
+  }
 }
