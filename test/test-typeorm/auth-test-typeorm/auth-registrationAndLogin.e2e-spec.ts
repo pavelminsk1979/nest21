@@ -4,9 +4,26 @@ import { applyAppSettings } from '../../../src/settings/apply-app-settings';
 import request from 'supertest';
 import { EmailSendService } from '../../../src/common/service/email-send-service';
 import { MockEmailSendService } from '../../../src/common/service/mock-email-send-service';
+import { DataSource } from 'typeorm';
+
+/*ТЕСТ НА
+-РЕГИСТРАЦИЯ
+-ПОДТВЕРЖДЕНИЕ РЕГИСТРАЦИИ
+-ЛОГИНИЗАЦИЯ
+(в базе появится сущность в таблице usertyp и 
+также после логинизации появится сущность
+в таблице securityDevice)*/
 
 describe('tests for andpoint auth/login', () => {
+  const login1 = 'login33';
+
+  const password1 = 'passwor33';
+
+  const email1 = 'avelminsk33@mail.ru';
+
   let app;
+
+  let code;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -32,12 +49,6 @@ describe('tests for andpoint auth/login', () => {
   });
 
   it('registration  user', async () => {
-    const login1 = 'login27';
-
-    const password1 = 'passwor27';
-
-    const email1 = 'avelminsk7@mail.ru';
-
     await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
@@ -46,38 +57,35 @@ describe('tests for andpoint auth/login', () => {
         email: email1,
       })
       .expect(204);
+
+    const dataSource = await app.resolve(DataSource);
+
+    const result = await dataSource.query(
+      `
+        select *
+    from public."usertyp" u
+    where u.login = login
+        `,
+    );
+    code = result[0].confirmationCode;
+
+    //console.log(code);
   });
 
-  it('registration  user', async () => {
-    const login1 = 'login27';
-
-    const password1 = 'passwor23';
-
-    const email1 = 'avelminsk73@mail.ru';
-
+  it('registration-confirmation  user', async () => {
     await request(app.getHttpServer())
-      .post('/auth/registration')
-      .send({
-        login: login1,
-        password: password1,
-        email: email1,
-      })
-      .expect(400);
+      .post('/auth/registration-confirmation')
+      .send({ code })
+      .expect(204);
   });
-  it('registration  user', async () => {
-    const login1 = 'login24';
 
-    const password1 = 'passwor22';
-
-    const email1 = 'avelminsk7@mail.ru';
-
+  it('creat user and login  user', async () => {
     await request(app.getHttpServer())
-      .post('/auth/registration')
+      .post('/auth/login')
       .send({
-        login: login1,
+        loginOrEmail: login1,
         password: password1,
-        email: email1,
       })
-      .expect(400);
+      .expect(200);
   });
 });
