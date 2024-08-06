@@ -392,8 +392,8 @@ export class AuthService {
   }
 
   async createViewModelForMeRequest(userId: string) {
-    const user: UserDocument | null =
-      await this.usersSqlRepository.getUserById(userId);
+    const user: Usertyp | null =
+      await this.userSqlTypeormRepository.getUserById(userId);
 
     if (!user) return null;
 
