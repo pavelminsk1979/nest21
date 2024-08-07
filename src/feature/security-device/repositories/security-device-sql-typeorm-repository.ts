@@ -52,6 +52,42 @@ export class SecurityDeviceSqlTypeormRepository {
     return true;
   }
 
+  async findDeviceAndUserByIdAndDate(
+    deviceId: string,
+    issuedAtRefreshToken: string,
+  ) {
+    const result: Securitydevicetyp | null =
+      await this.securitydeviceRepository.findOne({
+        where: { deviceId, issuedAtRefreshToken },
+        relations: {
+          usertyp: true,
+        },
+      });
+
+    /*
+    ---Если запись не будет найдена (то есть result
+        будет null)
+        -----Если запись будет найдена вернется обьект - сущность
+        ДЕВАЙС с полем  usertyp и у поля usertyp будет
+         значение - это обьект user
+        
+        */
+
+    if (!result) return null;
+    return result;
+  }
+
+  async changeDevice(newDevice: Securitydevicetyp) {
+    const result = await this.securitydeviceRepository.save(newDevice);
+
+    /*  метод save() в TypeORM возвращает сохраненный объект,
+        если операция прошла успешно, или undefined,
+        если сохранение не удалось.*/
+
+    if (!result) return false;
+    return true;
+  }
+
   /*
     async findDeviceByIdAndDate(deviceId: string, issuedAtRefreshToken: string) {
       const result = await this.dataSource.query(

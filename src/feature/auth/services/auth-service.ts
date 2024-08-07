@@ -358,14 +358,15 @@ export class AuthService {
 
     const { deviceId, issuedAtRefreshToken } = result;
 
-    const device = await this.securityDeviceSqlRepository.findDeviceByIdAndDate(
-      deviceId,
-      issuedAtRefreshToken,
-    );
+    const device: Securitydevicetyp | null =
+      await this.securityDeviceSqlTypeormRepository.findDeviceAndUserByIdAndDate(
+        deviceId,
+        issuedAtRefreshToken,
+      );
 
     if (!device) return null;
 
-    const userId = device.userId;
+    const userId = device.usertyp.id;
 
     const newAccessToken = await this.tokenJwtService.createAccessToken(userId);
 
@@ -374,19 +375,18 @@ export class AuthService {
 
     const newIssuedAtRefreshToken = newResultRefreshToken.issuedAtRefreshToken;
 
+    device.issuedAtRefreshToken = newIssuedAtRefreshToken;
+
     const newRefreshToken = newResultRefreshToken.refreshToken;
 
     /*в базу данных сохраняю-ИЗМЕНЯЮ ДАТУ СОЗДАНИЯ РЕФРЕШТОКЕНА
     ДЛЯ ДОКУМЕНТА С КОТОРЫМ УЖЕ РАБОТАЛ_КОТОРЫЙ УЖЕ СУЩЕСТВУЕТ
     В БАЗЕ ДАННЫХ*/
 
-    const updateDevice: boolean =
-      await this.securityDeviceSqlRepository.changeSecurityDevice(
-        device.id,
-        newIssuedAtRefreshToken,
-      );
+    const isUpdateDevice: boolean =
+      await this.securityDeviceSqlTypeormRepository.changeDevice(device);
 
-    if (!updateDevice) return null;
+    if (!isUpdateDevice) return null;
 
     return { newAccessToken, newRefreshToken };
   }
