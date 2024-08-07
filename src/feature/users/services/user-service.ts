@@ -8,6 +8,8 @@ import { HashPasswordService } from '../../../common/service/hash-password-servi
 import { v4 as randomCode } from 'uuid';
 import { UsersSqlRepository } from '../repositories/user-sql-repository';
 import { CreateUser } from '../api/types/dto';
+import { UserSqlTypeormRepository } from '../repositories/user-sql-typeorm-repository';
+import { Usertyp } from '../domains/usertyp.entity';
 
 @Injectable()
 /*@Injectable()-декоратор что данный клас
@@ -32,6 +34,7 @@ export class UsersService {
     protected usersRepository: UsersRepository,
     protected hashPasswordService: HashPasswordService,
     protected usersSqlRepository: UsersSqlRepository,
+    protected userSqlTypeormRepository: UserSqlTypeormRepository,
   ) {}
 
   async createUser(createUserInputModel: CreateUserInputModel) {
@@ -41,7 +44,8 @@ export class UsersService {
        их в базе и если такие есть в базе то вернуть
        на фронт ошибку */
 
-    const isExistLogin = await this.usersSqlRepository.isExistLogin(login);
+    const isExistLogin =
+      await this.userSqlTypeormRepository.isExistLogin(login);
 
     if (isExistLogin) {
       throw new BadRequestException([
@@ -52,7 +56,8 @@ export class UsersService {
       ]);
     }
 
-    const isExistEmail = await this.usersSqlRepository.isExistEmail(email);
+    const isExistEmail =
+      await this.userSqlTypeormRepository.isExistEmail(email);
 
     if (isExistEmail) {
       throw new BadRequestException([
@@ -75,15 +80,20 @@ export class UsersService {
       expirationDate: new Date().toISOString(),
     };
 
-    const resultId: string | null =
-      await this.usersSqlRepository.createNewUser(newUser);
+    const result: Usertyp | null =
+      await this.userSqlTypeormRepository.createNewUser(newUser);
 
-    if (!resultId) return null;
+    if (!result) return null;
 
-    return resultId;
+    return {
+      id: result.id,
+      login: result.login,
+      email: result.email,
+      createdAt: result.createdAt,
+    };
   }
 
   async deleteUserById(userId: string) {
-    return this.usersSqlRepository.deleteUserById(userId);
+    return this.userSqlTypeormRepository.deleteUserById(userId);
   }
 }

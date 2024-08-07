@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -69,19 +68,18 @@ export class UsersController {
 ошибку словит exeption filter(его надо подключить
 в main. ts)*/
   async createUser(@Body() createUserInputModel: CreateUserInputModel) {
-    const userId: string | null =
-      await this.usersService.createUser(createUserInputModel);
+    const user = await this.usersService.createUser(createUserInputModel);
 
-    if (!userId) {
-      throw new BadRequestException([
-        {
-          message: 'user not create',
-          field: 'andpoint user, method post',
-        },
-      ]);
-    }
-
-    const user = await this.userQuerySqlRepository.getUserById(userId);
+    /*   if (!userId) {
+         throw new BadRequestException([
+           {
+             message: 'user not create',
+             field: 'andpoint user, method post',
+           },
+         ]);
+       }
+   
+       const user = await this.userQuerySqlRepository.getUserById(userId);*/
 
     if (user) {
       return user;
