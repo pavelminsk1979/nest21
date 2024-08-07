@@ -7,6 +7,7 @@ import { SecurityDeviceRepository } from '../repositories/security-device-reposi
 import { SecurityDeviceSqlRepository } from '../repositories/security-device-sql-repository';
 import { SecurityDeviceSqlQueryRepository } from '../repositories/security-device-sql-query-repository';
 import { SecurityDeviceSqlTypeormRepository } from '../repositories/security-device-sql-typeorm-repository';
+import { Securitydevicetyp } from '../domains/securitydevicetype.entity';
 
 @Injectable()
 export class SecurityDeviceService {
@@ -21,19 +22,30 @@ export class SecurityDeviceService {
     deviceId: string,
     issuedAtRefreshToken: string,
   ) {
-    const oneDevice =
-      await this.securityDeviceSqlRepository.findDeviceByIdAndDate(
+    const oneDevice: Securitydevicetyp | null =
+      await this.securityDeviceSqlTypeormRepository.findDeviceAndUserByIdAndDate(
         deviceId,
         issuedAtRefreshToken,
       );
 
     if (!oneDevice) return null;
 
-    const userId = oneDevice.userId;
+    const userId = oneDevice.usertyp.id;
 
-    return this.securityDeviceSqlQueryRepository.getAllDevicesCorrectUser(
-      userId,
-    );
+    const arrDevices =
+      await this.securityDeviceSqlTypeormRepository.getAllDevicesCorrectUser(
+        userId,
+      );
+
+    const view = arrDevices.map((dev: Securitydevicetyp) => {
+      return {
+        ip: dev.ip,
+        title: dev.nameDevice,
+        lastActiveDate: dev.issuedAtRefreshToken,
+        deviceId: dev.deviceId,
+      };
+    });
+    return view;
   }
 
   async deleteDevicesExeptCurrentDevice(
@@ -62,28 +74,32 @@ export class SecurityDeviceService {
     deviceIdFromRefreshToken: string,
     deviceIdFromParam: string,
   ) {
-    const device =
-      await this.securityDeviceSqlRepository.findDeviceByDeviceId(
+    const deviceForDelete =
+      await this.securityDeviceSqlTypeormRepository.findDeviceByDeviceId(
         deviceIdFromParam,
       );
 
-    if (!device) return null; //404
+    if (!deviceForDelete) return null; //404
 
     /*   чтобы достать userId ТОГО 
        ПОЛЬЗОВАТЕЛЯ КОТОРЫЙ ДЕЛАЕТ ЗАПРОС 
-       мне надо найти документ  по deviceIdFromRefreshToen*/
+       мне надо найти документ  по deviceIdFromRefreshToen
+
+     --- и мне надо такой запрос чтоб он также вернул
+     сущность ЮЗЕРА чтоб я айдишку юзера потом взял
+       */
 
     const deviceCurrentUser =
-      await this.securityDeviceSqlRepository.findDeviceByDeviceId(
+      await this.securityDeviceSqlTypeormRepository.findDeviceAndUserByDeviceId(
         deviceIdFromRefreshToken,
       );
 
     if (!deviceCurrentUser) return null; //404
 
-    const userId = deviceCurrentUser.userId;
+    const userId = deviceCurrentUser.usertyp.id;
 
     const correctDevice =
-      await this.securityDeviceSqlRepository.findDeviceByUserIdAndDeviceIdFromParam(
+      await this.securityDeviceSqlTypeormRepository.findDeviceByUserIdAndDeviceId(
         userId,
         deviceIdFromParam,
       );
@@ -95,7 +111,7 @@ export class SecurityDeviceService {
       );
     }
 
-    return this.securityDeviceSqlRepository.deleteDeviceByDeviceId(
+    return this.securityDeviceSqlTypeormRepository.deleteDeviceByDeviceId(
       deviceIdFromParam,
     );
   }

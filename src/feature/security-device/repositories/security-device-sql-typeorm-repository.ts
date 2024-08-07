@@ -88,6 +88,66 @@ export class SecurityDeviceSqlTypeormRepository {
     return true;
   }
 
+  async getAllDevicesCorrectUser(userId: string) {
+    const result = await this.securitydeviceRepository.find({
+      where: { usertyp: { id: userId } },
+    });
+
+    /* в result  будет или пустой массив
+    или массив найденых обьектов*/
+
+    return result;
+  }
+
+  async findDeviceByDeviceId(deviceId: string) {
+    const result = await this.securitydeviceRepository.findOne({
+      where: { deviceId },
+    });
+    /*  Если сущность  с таким deviceId
+  будет найдено в базе
+   данных, то в result будет содержаться
+    объект . Если ничего не будет найдено,
+     то result будет равен undefined*/
+
+    if (!result) return null;
+    return result;
+  }
+
+  async findDeviceAndUserByDeviceId(deviceId: string) {
+    const result = await this.securitydeviceRepository.findOne({
+      where: { deviceId },
+      relations: {
+        usertyp: true,
+      },
+    });
+    /*
+---Если запись не будет найдена (то есть result
+    будет null)
+    -----Если запись будет найдена вернется обьект - сущность
+    ДЕВАЙС с полем  usertyp и у поля usertyp будет
+     значение - это обьект user
+    
+    */
+
+    if (!result) return null;
+    return result;
+  }
+
+  async findDeviceByUserIdAndDeviceId(userId: string, deviceId: string) {
+    const result = await this.securitydeviceRepository.findOne({
+      where: { deviceId, usertyp: { id: userId } },
+    });
+
+    /*   ---Если запись не будет найдена (то есть result
+       будет null)
+       -----Если запись будет найдена вернется обьект - сущность
+       ДЕВАЙС с полем  usertyp и у поля usertyp будет
+       значение - это обьект user*/
+
+    if (!result) return null;
+    return result;
+  }
+
   /*
     async findDeviceByIdAndDate(deviceId: string, issuedAtRefreshToken: string) {
       const result = await this.dataSource.query(
