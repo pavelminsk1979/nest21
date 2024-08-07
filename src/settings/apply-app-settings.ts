@@ -11,6 +11,7 @@ import { AppModule } from '../app.module';
 export const applyAppSettings = (app: INestApplication) => {
   /*без этой команды при деплое на ВЕРСЕЛ будут
   падать ошибки */
+
   app.enableCors();
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   /*ДЛЯ СОЗДАНИЯ ГЛОБАЛЬНОГО ПАЙПА

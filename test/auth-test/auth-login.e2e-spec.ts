@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../../../src/app.module';
-import { applyAppSettings } from '../../../src/settings/apply-app-settings';
+import { AppModule } from '../../src/app.module';
+import { applyAppSettings } from '../../src/settings/apply-app-settings';
 import request from 'supertest';
-import { EmailSendService } from '../../../src/common/service/email-send-service';
-import { MockEmailSendService } from '../../../src/common/service/mock-email-send-service';
+import { EmailSendService } from '../../src/common/service/email-send-service';
+import { MockEmailSendService } from '../../src/common/service/mock-email-send-service';
 
 describe('tests for andpoint auth/login', () => {
   let app;

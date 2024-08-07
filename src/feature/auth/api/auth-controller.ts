@@ -74,7 +74,7 @@ export class AuthController {
     const result = await this.authService.registrationUser(
       registrationInputModel,
     );
-    debugger;
+
     if (result) {
       return;
     } else {
@@ -113,7 +113,7 @@ export class AuthController {
   /*  если подтверждение регистрации НЕ ПРИШЛО 
     НА ПОЧТУ ... 
      -на этот эндпоинт повторно придет емаил
-     -проверю что в базе isConfirmed ===true
+     -проверю что в базе isConfirmed ===false
      -cтавлю новую дату протухания
      --новый КОД
      -заново отправляю письмо на почту*/
@@ -143,6 +143,8 @@ export class AuthController {
   /*1003 конспект- дошанка*/
   @HttpCode(HttpStatus.NO_CONTENT)
   /*
+  предварительно должно  регистрация и registration-confirmation
+
   -ЕСЛИ ЗАБЫЛ ПАРОЛЬ -МОЖНО ВОСТАНОВИТЬ
   -эндпоинт ожидает email
   -найдет юзера в базе
@@ -225,10 +227,12 @@ export class AuthController {
 
   @UseGuards(RefreshTokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
+  /*удалить одну запись - один девайс 
+  из таблицы Securitydevicetyp*/
   @Post('logout')
   async handleLogout(@Req() request: Request) {
     const deviceId = request['deviceId'];
-
+    debugger;
     const issuedAtRefreshToken = request['issuedAtRefreshToken'];
 
     const result = await this.securityDeviceService.logout(

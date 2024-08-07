@@ -5,9 +5,13 @@ import request from 'supertest';
 import { EmailSendService } from '../../../src/common/service/email-send-service';
 import { MockEmailSendService } from '../../../src/common/service/mock-email-send-service';
 
-/*не пройдет тест- надо регистрацию
-дописать и тогда пройдет */
 describe('tests for andpoint auth/registration-email-resending', () => {
+  const login1 = 'login11';
+
+  const password1 = 'passwor11';
+
+  const email1 = 'avelminsk11@mail.ru';
+
   let app;
 
   beforeAll(async () => {
@@ -26,18 +30,28 @@ describe('tests for andpoint auth/registration-email-resending', () => {
     await app.init();
 
     //для очистки базы данных
-    /* await request(app.getHttpServer()).delete('/testing/all-data');*/
+    await request(app.getHttpServer()).delete('/testing/all-data');
   });
 
   afterAll(async () => {
     await app.close();
+  });
+  it('registration  user', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration')
+      .send({
+        login: login1,
+        password: password1,
+        email: email1,
+      })
+      .expect(204);
   });
 
   it('registration-email-resending', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration-email-resending')
       .send({
-        email: 'avelminsk33@mail.ru',
+        email: email1,
       })
       .expect(204);
   });

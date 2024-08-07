@@ -147,7 +147,7 @@ export class AuthService {
     /*      login и email  должны быть уникальные--поискать
         их в базе и если такие есть в базе то вернуть
         на фронт ошибку */
-    debugger;
+
     const isExistLogin =
       await this.userSqlTypeormRepository.isExistLogin(login);
 
@@ -159,7 +159,7 @@ export class AuthService {
         },
       ]);
     }
-    debugger;
+
     const isExistEmail =
       await this.userSqlTypeormRepository.isExistEmail(email);
     if (isExistEmail) {
@@ -170,7 +170,7 @@ export class AuthService {
         },
       ]);
     }
-    debugger;
+
     const passwordHash = await this.hashPasswordService.generateHash(password);
 
     const newUser: CreateUser = {
