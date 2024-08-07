@@ -52,17 +52,19 @@ export class SecurityDeviceService {
     deviceId: string,
     issuedAtRefreshToken: string,
   ) {
+    /*oneDevice и внутри будет вложеный обьект user*/
+
     const oneDevice =
-      await this.securityDeviceSqlRepository.findDeviceByIdAndDate(
+      await this.securityDeviceSqlTypeormRepository.findDeviceAndUserByIdAndDate(
         deviceId,
         issuedAtRefreshToken,
       );
 
     if (!oneDevice) return null;
 
-    const userId = oneDevice.userId;
+    const userId = oneDevice.usertyp.id;
 
-    await this.securityDeviceSqlRepository.deleteDevicesExeptCurrentDevice(
+    await this.securityDeviceSqlTypeormRepository.deleteDevicesExeptCurrentDevice(
       userId,
       deviceId,
     );

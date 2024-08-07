@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { Securitydevicetyp } from '../domains/securitydevicetype.entity';
 
 @Injectable()
@@ -148,6 +148,34 @@ export class SecurityDeviceSqlTypeormRepository {
     return result;
   }
 
+  async deleteDevicesExeptCurrentDevice(userId: string, deviceId: string) {
+    await this.securitydeviceRepository.delete({
+      usertyp: { id: userId },
+      deviceId: Not(deviceId),
+    });
+    return true;
+    /*    //////////////////////////////////////
+                    ОДИН ВАРИАНТ
+          ///////////////////////////////////
+        // Находим все девайсы  для данного userId
+        const arrayDevicesForCorrectUser = await this.securitydeviceRepository.find(
+          { where: { usertyp: { id: userId } } },
+        );
+  
+        /!*Массив обьектов
+        кроме того обьекта у которого deviceId   пришла из всне
+        *!/
+  
+        const array = arrayDevicesForCorrectUser.filter(
+          (dev: Securitydevicetyp) => dev.deviceId !== deviceId,
+        );
+  
+        await this.securitydeviceRepository.remove(array);
+  
+        return true;
+        /////////////////////////////////////////*/
+  }
+
   /*
     async findDeviceByIdAndDate(deviceId: string, issuedAtRefreshToken: string) {
       const result = await this.dataSource.query(
@@ -255,8 +283,8 @@ export class SecurityDeviceSqlTypeormRepository {
         [userId, deviceId],
       );
   
-      /!*условие AND "deviceId" <> $2, --- гарантирует, что 
-      будут удалены ВСЕ устройства с userId, КРОМЕ 
+      /!*условие AND "deviceId" <> $2, --- гарантирует, что
+      будут удалены ВСЕ устройства с userId, КРОМЕ
       устройства с указанным deviceId
   *!/
   

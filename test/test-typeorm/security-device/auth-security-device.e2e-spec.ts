@@ -143,12 +143,21 @@ describe('tests for andpoint auth/logout', () => {
     deviceId = res.body[0].deviceId;
   });
 
+  /*  it('delete  device by deviceId', async () => {
+      const res = await request(app.getHttpServer())
+        .delete(`/security/devices/${deviceId}`)
+        .set('Cookie', `refreshToken=${refreshToken}`)
+        .expect(204);
+    });*/
+
   it('delete  device by deviceId', async () => {
     const res = await request(app.getHttpServer())
-      .delete(`/security/devices/${deviceId}`)
+      .delete('/security/devices')
       .set('Cookie', `refreshToken=${refreshToken}`)
       .expect(204);
   });
+
+  ///////////////////////////////////////////////////////////
 
   /*  it('logout', async () => {
       await request(app.getHttpServer())
