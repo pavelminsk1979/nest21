@@ -96,4 +96,13 @@ describe('tests for andpoint users', () => {
       .expect(200);
     console.log(res.body);
   });
+
+  it('delete  user by id', async () => {
+    const id = '602afe92-7d97-4395-b1b9-6cf98b351bbe';
+    await request(app.getHttpServer())
+      .delete(`/sa/users/${id}`)
+      .set('Authorization', `Basic ${loginPasswordBasic64}`)
+
+      .expect(404);
+  });
 });

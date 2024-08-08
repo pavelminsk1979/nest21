@@ -127,7 +127,8 @@ export class UserSqlTypeormRepository {
     const result = await this.usertypRepository.delete({ id: userId });
     /* если удаление не удалось, result может быть undefined 
  или содержать информацию об ошибке,*/
-    if (!result) return false;
+
+    if (result.affected === 0) return false;
     /*Если удаление прошло успешно, result
     содержать объект DeleteResult
     --можете получить доступ к количеству удаленных
