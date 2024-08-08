@@ -107,8 +107,21 @@ describe('tests for andpoint auth/logout', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
 
-    console.log('------------');
-    console.log(res.body);
-    console.log('-----------');
+    /*  console.log('------------');
+      console.log(res.body);
+      console.log('-----------');*/
+  });
+
+  it('me request', async () => {
+    const badAccessToken =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxZWIyNDdlYi00NmMwLTQ5NGMtYjFmMC03Y2E2ZTM2MmZlNDkiLCJpYXQiOjE3MjMxNTQzMTksImV4cCI6MTcyMzE1NDYxOX0.rIhexOrtt8haTw8Je_0wbwXMNCo00Mov5fuHAb1fAVA';
+    const res = await request(app.getHttpServer())
+      .get('/auth/me')
+      .set('Authorization', `Bearer ${badAccessToken}`)
+      .expect(401);
+
+    /*  console.log('------------');
+      console.log(res.body);
+      console.log('-----------');*/
   });
 });
