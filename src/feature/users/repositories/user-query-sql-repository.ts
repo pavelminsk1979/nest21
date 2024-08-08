@@ -30,12 +30,14 @@ export class UserQuerySqlRepository {
         { login: Like(`%${searchLoginTerm}%`) },
         { email: Like(`%${searchEmailTerm}%`) },
       ],
+
       order: { [sortBy]: sortDirection },
       skip: amountSkip,
       take: pageSize,
     });
 
-    const [items, totalCount] = result;
+    const items = result[0];
+    const totalCount = result[1];
 
     const pagesCount: number = Math.ceil(totalCount / pageSize);
 
