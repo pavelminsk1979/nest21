@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { QueryParamsInputModel } from '../../../common/pipes/query-params-input-model';
 import { ViewUser } from '../api/types/views';
 import { CreateUserWithId } from '../api/types/dto';
@@ -42,21 +42,30 @@ pageSize - размер  одной страницы, ПО УМОЛЧАНИЮ 10
 
     const result = await this.usertypRepository.find({
       where: [
-        { login: Like(`%${searchLoginTerm}%`) },
-        { email: Like(`%${searchEmailTerm}%`) },
+        { login: ILike(`%${searchLoginTerm}%`) },
+        { email: ILike(`%${searchEmailTerm}%`) },
       ],
+      order: { [sortBy]: sortDirection }, //COLLATE "C"
 
-      order: { [sortBy]: sortDirection },
       skip: amountSkip,
       take: pageSize,
     });
 
     const totalCount = await this.usertypRepository.count({
       where: [
-        { login: Like(`%${searchLoginTerm}%`) },
-        { email: Like(`%${searchEmailTerm}%`) },
+        { login: ILike(`%${searchLoginTerm}%`) },
+        { email: ILike(`%${searchEmailTerm}%`) },
       ],
     });
+
+    console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5');
+    console.log(searchLoginTerm);
+    console.log(totalCount);
+    console.log(searchEmailTerm);
+    console.log(sortDirection);
+    console.log(pageNumber);
+    console.log(pageSize);
+    console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5');
 
     /*
 pagesCount это (число)  общее количество страниц путем деления 
