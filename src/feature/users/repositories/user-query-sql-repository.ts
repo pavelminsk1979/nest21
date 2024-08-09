@@ -58,15 +58,6 @@ pageSize - размер  одной страницы, ПО УМОЛЧАНИЮ 10
       ],
     });
 
-    console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5');
-    console.log(searchLoginTerm);
-    console.log(totalCount);
-    console.log(searchEmailTerm);
-    console.log(sortDirection);
-    console.log(pageNumber);
-    console.log(pageSize);
-    console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5');
-
     /*
 pagesCount это (число)  общее количество страниц путем деления 
 общего количества документов на размер страницы (pageSize),
