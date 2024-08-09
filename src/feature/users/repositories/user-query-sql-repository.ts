@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { QueryParamsInputModel } from '../../../common/pipes/query-params-input-model';
 import { ViewUser } from '../api/types/views';
 import { CreateUserWithId } from '../api/types/dto';
@@ -40,33 +40,50 @@ pageSize - размер  одной страницы, ПО УМОЛЧАНИЮ 10
 
     const amountSkip = (pageNumber - 1) * pageSize;
 
-    const result = await this.usertypRepository.find({
-      where: [
-        { login: ILike(`%${searchLoginTerm}%`) },
-        { email: ILike(`%${searchEmailTerm}%`) },
-      ],
-      order: { [sortBy]: sortDirection }, //COLLATE "C"
+    /*    const result = await this.dataSource.query(
+          `
+       SELECT *
+      FROM public."user" u
+       WHERE u.login ILIKE $1 OR u.email ILIKE $2
+      ORDER BY "${sortBy}" COLLATE "C" ${sortDirection}  
+        LIMIT $3 OFFSET $4
+     
+      `,
+          [`%${searchLoginTerm}%`, `%${searchEmailTerm}%`, pageSize, amountSkip],
+        );*/
 
-      skip: amountSkip,
-      take: pageSize,
-    });
+    const queryBuilder = await this.usertypRepository
+      .createQueryBuilder('usertyp')
+      .where(
+        '(usertyp.login ILIKE :searchLoginTerm OR usertyp.email ILIKE :searchEmailTerm)',
+        {
+          searchLoginTerm: `%${searchLoginTerm}%`,
+          searchEmailTerm: `%${searchEmailTerm}%`,
+        },
+      )
+      .orderBy(
+        `usertyp.${sortBy} COLLATE "C"`,
+        sortDirection.toUpperCase() as 'ASC' | 'DESC',
+      )
+      .skip(amountSkip)
+      .take(pageSize);
 
-    const totalCount = await this.usertypRepository.count({
-      where: [
-        { login: ILike(`%${searchLoginTerm}%`) },
-        { email: ILike(`%${searchEmailTerm}%`) },
-      ],
-    });
+    /* const queryBuilder = await this.usertypRepository.count({
+       where: [
+         { login: ILike(`%${searchLoginTerm}%`) },
+         { email: ILike(`%${searchEmailTerm}%`) },
+       ],
+     });*/
 
     console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5');
     console.log(searchLoginTerm);
-    console.log(totalCount);
+
     console.log(searchEmailTerm);
     console.log(sortDirection);
     console.log(pageNumber);
     console.log(pageSize);
     console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5');
-
+    const [result, totalCount] = await queryBuilder.getManyAndCount();
     /*
 pagesCount это (число)  общее количество страниц путем деления 
 общего количества документов на размер страницы (pageSize),
