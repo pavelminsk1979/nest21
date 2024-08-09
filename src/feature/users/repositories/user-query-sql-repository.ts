@@ -45,7 +45,7 @@ pageSize - размер  одной страницы, ПО УМОЛЧАНИЮ 10
         { login: ILike(`%${searchLoginTerm}%`) },
         { email: ILike(`%${searchEmailTerm}%`) },
       ],
-      order: { [sortBy]: sortDirection },
+      order: { [sortBy]: sortDirection }, //COLLATE "C"
 
       skip: amountSkip,
       take: pageSize,
@@ -57,6 +57,15 @@ pageSize - размер  одной страницы, ПО УМОЛЧАНИЮ 10
         { email: ILike(`%${searchEmailTerm}%`) },
       ],
     });
+
+    console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5');
+    console.log(searchLoginTerm);
+    console.log(totalCount);
+    console.log(searchEmailTerm);
+    console.log(sortDirection);
+    console.log(pageNumber);
+    console.log(pageSize);
+    console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5');
 
     /*
 pagesCount это (число)  общее количество страниц путем деления 
