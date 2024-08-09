@@ -47,7 +47,7 @@ export class Usertyp {
 
     */
 
-  @Column()
+  @Column({ collation: 'C' })
   public login: string;
 
   @Column()
