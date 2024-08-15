@@ -86,6 +86,7 @@ import { SecurityDeviceSqlTypeormRepository } from './feature/security-device/re
 import { Blogtyp } from './feature/blogs/domains/blogtyp.entity';
 import { BlogSqlTypeormRepository } from './feature/blogs/repositories/blog-sql-typeorm-repository';
 import { BlogQuerySqlTypeormRepository } from './feature/blogs/repositories/blog-query-sql-typeorm-repository';
+import { Posttyp } from './feature/posts/domains/posttyp.entity';
 
 dotenv.config();
 
@@ -127,7 +128,7 @@ dotenv.config();
       synchronize: true,
       logging: ['query'],
     }),
-    TypeOrmModule.forFeature([Usertyp, Securitydevicetyp, Blogtyp]),
+    TypeOrmModule.forFeature([Usertyp, Securitydevicetyp, Blogtyp, Posttyp]),
 
     /*    --------type: 'postgres',    определяет  базу данных
     к которой подключаюсь

@@ -110,7 +110,7 @@ pageSize - размер  одной страницы, ПО УМОЛЧАНИЮ 10
   который ожидает  фронтенд
 */
 
-    const arrayBlogs: ViewBlog[] = result[0].map((blog: CreateBlogWithId) => {
+    const arrayBlogs: ViewBlog[] = result[0].map((blog: Blogtyp) => {
       return this.createViewModelBlog(blog);
     });
 

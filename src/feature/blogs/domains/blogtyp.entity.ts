@@ -1,10 +1,14 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Posttyp } from '../../posts/domains/posttyp.entity';
 
 @Entity()
 /*не создает таблицы без
 TypeOrmModule.forFeature([Usertyp]),
   в app.module.ts*/
 export class Blogtyp {
+  @OneToMany(() => Posttyp, 'blogtyp')
+  public posttyp: Posttyp;
+
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
