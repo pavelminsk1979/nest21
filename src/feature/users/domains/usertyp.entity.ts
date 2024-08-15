@@ -2,6 +2,9 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Securitydevicetyp } from '../../security-device/domains/securitydevicetype.entity';
 
 @Entity()
+/*не создает таблицы без
+TypeOrmModule.forFeature([Usertyp]),
+  в app.module.ts*/
 export class Usertyp {
   /*-----@OneToMany(() => Securitydevicetyp, 'usertyp')
   

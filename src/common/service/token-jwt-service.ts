@@ -11,7 +11,7 @@ export class TokenJwtService {
   constructor(private configService: ConfigService<ConfigurationType, true>) {
     /*  this.expirationAccessToken = '10s';
       this.expirationRefreshToken = '20s';*/
-    this.expirationAccessToken = '5m';
+    this.expirationAccessToken = '6m';
     this.expirationRefreshToken = '10m';
   }
 
