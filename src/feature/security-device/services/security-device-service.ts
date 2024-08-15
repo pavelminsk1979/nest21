@@ -12,9 +12,6 @@ import { Securitydevicetyp } from '../domains/securitydevicetype.entity';
 @Injectable()
 export class SecurityDeviceService {
   constructor(
-    protected securityDeviceRepository: SecurityDeviceRepository,
-    protected securityDeviceSqlRepository: SecurityDeviceSqlRepository,
-    protected securityDeviceSqlQueryRepository: SecurityDeviceSqlQueryRepository,
     protected securityDeviceSqlTypeormRepository: SecurityDeviceSqlTypeormRepository,
   ) {}
 

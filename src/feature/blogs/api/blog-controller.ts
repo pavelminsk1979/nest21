@@ -1,19 +1,23 @@
 import {
+  Body,
   Controller,
   Get,
   NotFoundException,
   Param,
+  Post,
   Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { PostQueryRepository } from '../../posts/repositories/post-query-repository';
 import { ViewModelWithArrayPosts } from '../../posts/api/types/views';
 import { CommandBus } from '@nestjs/cqrs';
 import { QueryParamsInputModel } from '../../../common/pipes/query-params-input-model';
 import { DataUserExtractorFromTokenGuard } from '../../../common/guard/data-user-extractor-from-token-guard';
 import { BlogQuerySqlRepository } from '../repositories/blog-query-sql-repository';
 import { PostQuerySqlRepository } from '../../posts/repositories/post-query-sql-repository';
+import { CreateBlogInputModel } from './pipes/create-blog-input-model';
+import { CreateBlogCommand } from '../services/create-blog-service';
+import { BlogQuerySqlTypeormRepository } from '../repositories/blog-query-sql-typeorm-repository';
 
 @Controller('blogs')
 export class BlogController {
@@ -22,9 +26,9 @@ export class BlogController {
      * и в каждой отдельный метод
      * конспект 1501*/
     protected commandBus: CommandBus,
-    protected postQueryRepository: PostQueryRepository,
     protected blogQuerySqlRepository: BlogQuerySqlRepository,
     protected postQuerySqlRepository: PostQuerySqlRepository,
+    protected blogQuerySqlTypeormRepository: BlogQuerySqlTypeormRepository,
   ) {}
 
   /*Nest.js автоматически возвращает следующие
@@ -34,33 +38,25 @@ export class BlogController {
   а ошибки по умолчанию
   post 400,get 404, delete 404, put 400*/
 
-  /*  @UseGuards(AuthGuard)
-    /!*@HttpCode(HttpStatus.CREATED) необязательно
-     * ибо метод пост поумолчанию HTTP-статус 201 *!/
-    @Post()
-    async createBlog(
-      @Body() createBlogInputModel: CreateBlogInputModel,
-    ): Promise<ViewBlog> {
-      const id: string | null = await this.commandBus.execute(
-        new CreateBlogCommand(createBlogInputModel),
-      );
-  
-      if (!id) {
-        throw new NotFoundException('blog not create:andpoint-post,url /blogs');
-      }
-  
-      const blog = await this.blogQuerySqlRepository.getBlogById(id);
-  
-      if (blog) {
-        return blog;
-      } else {
-        throw new NotFoundException('blog not found:andpoint-post,url /blogs');
-      }
-    }*/
+  //@UseGuards(AuthGuard)
+  /*@HttpCode(HttpStatus.CREATED) необязательно
+   * ибо метод пост поумолчанию HTTP-статус 201 */
+  @Post()
+  async createBlog(@Body() createBlogInputModel: CreateBlogInputModel) {
+    const blog = await this.commandBus.execute(
+      new CreateBlogCommand(createBlogInputModel),
+    );
+
+    if (blog) {
+      return blog;
+    } else {
+      throw new NotFoundException('blog not found:andpoint-post,url /blogs');
+    }
+  }
 
   @Get()
   async getBlogs(@Query() queryParamsBlogInputModel: QueryParamsInputModel) {
-    const blogs = await this.blogQuerySqlRepository.getBlogs(
+    const blogs = await this.blogQuerySqlTypeormRepository.getBlogs(
       queryParamsBlogInputModel,
     );
 

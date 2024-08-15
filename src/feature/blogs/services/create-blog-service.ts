@@ -4,6 +4,7 @@ import { CreateBlogInputModel } from '../api/pipes/create-blog-input-model';
 import { CommandHandler } from '@nestjs/cqrs';
 import { CreateBlog } from '../api/types/dto';
 import { BlogSqlRepository } from '../repositories/blog-sql-repository';
+import { BlogSqlTypeormRepository } from '../repositories/blog-sql-typeorm-repository';
 
 export class CreateBlogCommand {
   constructor(public createBlogInputModel: CreateBlogInputModel) {}
@@ -12,12 +13,9 @@ export class CreateBlogCommand {
 @CommandHandler(CreateBlogCommand)
 @Injectable()
 export class CreateBlogService {
-  constructor(
-    protected blogSqlRepository: BlogSqlRepository,
-    protected blogRepository: BlogRepository,
-  ) {}
+  constructor(protected blogSqlTypeormRepository: BlogSqlTypeormRepository) {}
 
-  async execute(command: CreateBlogCommand): Promise<string | null> {
+  async execute(command: CreateBlogCommand) {
     const { name, websiteUrl, description } = command.createBlogInputModel;
 
     const newBlog: CreateBlog = {
@@ -25,12 +23,20 @@ export class CreateBlogService {
       description,
       websiteUrl,
       createdAt: new Date().toISOString(),
-      isMembership: false,
+      isMembership: true,
     };
 
-    const blogId: string | null =
-      await this.blogSqlRepository.createNewBlog(newBlog);
+    const blog = await this.blogSqlTypeormRepository.createNewBlog(newBlog);
 
-    return blogId;
+    if (!blog) return null;
+
+    return {
+      id: blog.id,
+      name: blog.name,
+      description: blog.description,
+      websiteUrl: blog.websiteUrl,
+      createdAt: blog.createdAt,
+      isMembership: blog.isMembership,
+    };
   }
 }

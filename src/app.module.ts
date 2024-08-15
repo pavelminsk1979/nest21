@@ -84,6 +84,8 @@ import { Securitydevicetyp } from './feature/security-device/domains/securitydev
 import { UserSqlTypeormRepository } from './feature/users/repositories/user-sql-typeorm-repository';
 import { SecurityDeviceSqlTypeormRepository } from './feature/security-device/repositories/security-device-sql-typeorm-repository';
 import { Blogtyp } from './feature/blogs/domains/blogtyp.entity';
+import { BlogSqlTypeormRepository } from './feature/blogs/repositories/blog-sql-typeorm-repository';
+import { BlogQuerySqlTypeormRepository } from './feature/blogs/repositories/blog-query-sql-typeorm-repository';
 
 dotenv.config();
 
@@ -338,6 +340,8 @@ dotenv.config();
     LikeStatusForPostSqlRepository,
     UserSqlTypeormRepository,
     SecurityDeviceSqlTypeormRepository,
+    BlogSqlTypeormRepository,
+    BlogQuerySqlTypeormRepository,
   ],
 })
 /*export class AppModule {} в данном контексте
