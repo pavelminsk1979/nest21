@@ -1,14 +1,11 @@
 import { Injectable } from '@nestjs/common';
 
 import { ViewBlog } from '../api/types/views';
-import {
-  QueryParamsInputModel,
-  SortDirection,
-} from '../../../common/pipes/query-params-input-model';
+import { QueryParamsInputModel } from '../../../common/pipes/query-params-input-model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { CreateBlogWithId } from '../api/types/dto';
+import { CreateBlogWithId, SortDir } from '../api/types/dto';
 import { Blogtyp } from '../domains/blogtyp.entity';
 
 @Injectable()
@@ -88,12 +85,21 @@ pageSize - размер  одной страницы, ПО УМОЛЧАНИЮ 10
 
          */
 
-    const result = await this.blogtypeRepository
+    /*sortDir это кастыль чтоб весь код не упал
+     * ибо менять в енамке - и много где енамка используется */
+    let sortDir: SortDir;
+    if (sortDirection === 'asc') {
+      sortDir = 'ASC';
+    } else {
+      sortDir = 'DESC';
+    }
+
+    const result: [Blogtyp[], number] = await this.blogtypeRepository
       .createQueryBuilder('b')
       .where('b.name ILIKE :searchNameTerm', {
         searchNameTerm: `%${searchNameTerm}%`,
       })
-      .orderBy(`b.${sortBy}`, sortDirection)
+      .orderBy(`b.${sortBy}`, sortDir)
       .skip(amountSkip)
       .take(pageSize)
       .getManyAndCount();
@@ -104,42 +110,22 @@ pageSize - размер  одной страницы, ПО УМОЛЧАНИЮ 10
   который ожидает  фронтенд
 */
 
-    const arrayBlogs: ViewBlog[] = result.map((blog: CreateBlogWithId) => {
+    const arrayBlogs: ViewBlog[] = result[0].map((blog: CreateBlogWithId) => {
       return this.createViewModelBlog(blog);
     });
 
-    /*  totalCount  это---
-     ПРИ запросе к базе данных я делал втом числе 
-     и фильтрацию- по символам которые с фронтенда 
-     могли прити
-     ....
-     НАПОМНЮ
-     -передается от фронта "Jo" для определенной колонки и
-   если  есть записи в базе данных  и у этих записей
-   у ДАННОЙ КОЛОКИ например существуют  "John",
-    "Johanna" и "Jonathan", тогда эти  три записи будут
-     выбраны и возвращены как результат запроса
-     ......
-     НАПОМНЮ Я В ЗАПРОСЕ ТОЛЬКО 10 (поумолчанию)
-     записей просил 
- А таких записей в таблице может быть много, и надо 
- сделать запрос и узнать их количество и положить в переменную  totalCount
- */
+    /*    result: [Blogtyp[], number]     возвращает кортеж, 
+    где первый элемент - массив объектов, удовлетворяющих
+     запросу, а второй элемент - общее количество записей
+      в базе данных, удовлетворяющих условию запроса
+       без учета операции take(pageSize).*/
 
-    const totalCountQuery = await this.dataSource.query(
-      `
-  SELECT COUNT(*) AS value
-  FROM public."blog" b
-   WHERE b.name ILIKE $1 
- `,
-      [`%${searchNameTerm}%`],
-    );
-
-    const totalCount = Number(totalCountQuery[0].value);
+    const totalCount = result[1];
 
     /*
 pagesCount это число
-Вычисляется общее количество страниц путем деления общего количества документов на размер страницы (pageSize), и округление вверх с помощью функции Math.ceil.*/
+Вычисляется общее количество страниц путем деления общего количества
+записей  на размер страницы (pageSize), и округление вверх с помощью функции Math.ceil.*/
 
     const pagesCount: number = Math.ceil(totalCount / pageSize);
 
@@ -153,28 +139,24 @@ pagesCount это число
   }
 
   async getBlogById(blogId: string) {
-    const result = await this.dataSource.query(
-      `
- select *
-from public."blog" u
-where u.id = $1
-    `,
-      [blogId],
-    );
+    const result = await this.blogtypeRepository
+      .createQueryBuilder('b')
+      .where('b.id = :blogId', { blogId })
+      .getOne();
 
-    if (result.length === 0) return null;
+    if (!result) return null;
 
     return {
-      id: result[0].id,
-      name: result[0].name,
-      description: result[0].description,
-      websiteUrl: result[0].websiteUrl,
-      createdAt: result[0].createdAt,
-      isMembership: result[0].isMembership,
+      id: result.id,
+      name: result.name,
+      description: result.description,
+      websiteUrl: result.websiteUrl,
+      createdAt: result.createdAt,
+      isMembership: result.isMembership,
     };
   }
 
-  createViewModelBlog(blog: CreateBlogWithId): ViewBlog {
+  createViewModelBlog(blog: Blogtyp): ViewBlog {
     return {
       id: blog.id,
       name: blog.name,

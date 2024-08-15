@@ -65,7 +65,7 @@ export class BlogController {
 
   @Get(':id')
   async getBlogById(@Param('id') bologId: string) {
-    const blog = await this.blogQuerySqlRepository.getBlogById(bologId);
+    const blog = await this.blogQuerySqlTypeormRepository.getBlogById(bologId);
 
     if (blog) {
       return blog;

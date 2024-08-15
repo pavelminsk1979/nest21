@@ -86,6 +86,22 @@ describe('tests for andpoint blog', () => {
     idBlogForUpdate = res.body.id;
   });
 
+  it('get all  blogs andpoint SaBlogs', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/blogs')
+
+      .expect(200);
+    //console.log(res.body);
+  });
+
+  it('get  blog by id', async () => {
+    const res = await request(app.getHttpServer())
+      .get(`/blogs/${idBlog1}`)
+
+      .expect(200);
+    console.log(res.body);
+  });
+
   /* it('update   blog by id', async () => {
      const res = await request(app.getHttpServer())
        .put(`/sa/blogs/${idBlogForUpdate}`)

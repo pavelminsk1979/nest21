@@ -12,15 +12,19 @@ export class BlogSqlTypeormRepository {
   ) {}
 
   async createNewBlog(newBlog: CreateBlog) {
-    const blog = new Blogtyp();
-    blog.createdAt = newBlog.createdAt;
-    blog.isMembership = newBlog.isMembership;
-    blog.name = newBlog.name;
-    blog.description = newBlog.description;
-    blog.websiteUrl = newBlog.websiteUrl;
+    const result = await this.blogtypRepository
+      .createQueryBuilder()
+      .insert()
+      .into(Blogtyp)
+      .values({
+        createdAt: newBlog.createdAt,
+        isMembership: newBlog.isMembership,
+        name: newBlog.name,
+        description: newBlog.description,
+        websiteUrl: newBlog.websiteUrl,
+      })
+      .execute();
 
-    const result: Blogtyp = await this.blogtypRepository.save(blog);
-
-    return result;
+    return result.raw[0];
   }
 }

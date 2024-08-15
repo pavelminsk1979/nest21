@@ -14,3 +14,5 @@ export type CreateBlogWithId = {
   createdAt: string;
   isMembership: boolean;
 };
+
+export type SortDir = 'ASC' | 'DESC';
