@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { applyAppSettings } from '../../src/settings/apply-app-settings';
 import request from 'supertest';
-import cookieParser from 'cookie-parser';
 
 describe('tests for andpoint blog', () => {
   let app;
@@ -121,7 +120,7 @@ describe('tests for andpoint blog', () => {
     debugger;
     const res = await request(app.getHttpServer())
       .post('/posts')
-      //.set('Authorization', `Basic ${loginPasswordBasic64}`)
+      .set('Authorization', `Basic ${loginPasswordBasic64}`)
       .send({
         title: 'titlePost2',
         shortDescription: 'shortDescriptionPost2',
@@ -138,7 +137,7 @@ describe('tests for andpoint blog', () => {
   it('create post3', async () => {
     const res = await request(app.getHttpServer())
       .post('/posts')
-      //.set('Authorization', `Basic ${loginPasswordBasic64}`)
+      .set('Authorization', `Basic ${loginPasswordBasic64}`)
       .send({
         title: 'titlePost3',
         shortDescription: 'shortDescriptionPost3',

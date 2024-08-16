@@ -30,8 +30,7 @@ export class CreatePostForBlogService {
       command.createPostForBlogInputModel;
     const blogId = command.blogId;
 
-    const blog: BlogDocument | null =
-      await this.blogSqlRepository.findBlog(blogId);
+    const blog = await this.blogSqlRepository.findBlog(blogId);
 
     if (!blog) return null;
 

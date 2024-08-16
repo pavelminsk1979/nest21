@@ -1,12 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateBlog } from '../api/types/dto';
 import { CreateBlogInputModel } from '../api/pipes/create-blog-input-model';
+import { Blogtyp } from '../domains/blogtyp.entity';
 
 @Injectable()
 export class BlogSqlRepository {
-  constructor(@InjectDataSource() protected dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() protected dataSource: DataSource,
+    @InjectRepository(Blogtyp)
+    private readonly blogtypRepository: Repository<Blogtyp>,
+  ) {}
 
   async createNewBlog(newBlog: CreateBlog) {
     const result = await this.dataSource.query(
@@ -36,18 +41,14 @@ RETURNING id;
   }
 
   async findBlog(blogId: string) {
-    const result = await this.dataSource.query(
-      `
-   select *
-  from public."blog" b
-  where b.id = $1
-      `,
-      [blogId],
-    );
+    const result = await this.blogtypRepository
+      .createQueryBuilder('b')
+      .where('b.id = :blogId', { blogId })
+      .getOne();
 
-    if (result.length === 0) return null;
+    if (!result) return null;
 
-    return result[0];
+    return result;
   }
 
   async updateBlog(blogId: string, updateBlogInputModel: CreateBlogInputModel) {

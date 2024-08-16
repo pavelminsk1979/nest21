@@ -24,4 +24,5 @@ export type CreatePostTypeorm = {
   content: string;
   createdAt: string;
   blogtyp: Blogtyp;
+  blogName: string;
 };

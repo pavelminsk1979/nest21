@@ -42,12 +42,12 @@ export class PostService {
 
   async createPost(createPostInputModel: CreatePostInputModel) {
     const { content, shortDescription, title, blogId } = createPostInputModel;
-    debugger;
+
     /* нужно получить документ блога из базы чтобы взять от него
 поле blogName*/
     const blog: Blogtyp | null =
       await this.blogSqlTypeormRepository.getBlogByBlogId(blogId);
-    debugger;
+
     if (!blog) return null;
 
     /* создаю документ post */
@@ -56,6 +56,7 @@ export class PostService {
       shortDescription,
       content,
       createdAt: new Date().toISOString(),
+      blogName: blog.name,
       blogtyp: blog,
     };
 

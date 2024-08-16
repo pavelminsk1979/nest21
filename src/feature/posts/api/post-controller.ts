@@ -42,7 +42,6 @@ export class PostsController {
   async createPost(@Body() createPostInputModel: CreatePostInputModel) {
     /* создать новый пост  и вернуть данные этого поста и также
     внутри структуру данных(снулевыми значениями)  о лайках  к этому посту*/
-    debugger;
     const postId: string | null =
       await this.postService.createPost(createPostInputModel);
 
