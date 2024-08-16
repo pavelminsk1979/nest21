@@ -26,6 +26,7 @@ import { SetLikeStatusForPostInputModel } from './pipes/set-like-status-input-mo
 import { DataUserExtractorFromTokenGuard } from '../../../common/guard/data-user-extractor-from-token-guard';
 import { PostQuerySqlRepository } from '../repositories/post-query-sql-repository';
 import { CommentQuerySqlRepository } from '../../comments/reposetories/comment-query-sql-repository';
+import { CreatePostInputModel } from './pipes/create-post-input-model';
 
 @Controller('posts')
 export class PostsController {
@@ -36,34 +37,32 @@ export class PostsController {
     protected commentQuerySqlRepository: CommentQuerySqlRepository,
   ) {}
 
-  /*  @UseGuards(AuthGuard, DataUserExtractorFromTokenGuard)
-    /!*  @HttpCode(HttpStatus.CREATED) по умолчанию 201
-      поэтому необязательно это прописывать *!/
-    @Post()
-    async createPost(
-      @Body() createPostInputModel: CreatePostInputModel,
-    ): Promise<PostWithLikesInfo | null> {
-      /!* создать новый пост  и вернуть данные этого поста и также
-      внутри структуру данных(снулевыми значениями)  о лайках  к этому посту*!/
-  
-      const postId: string | null =
-        await this.postService.createPost(createPostInputModel);
-  
-      if (!postId) {
-        throw new NotFoundException(
-          'Cannot create post because blog does not exist-:method-post,url-posts',
-        );
-      }
-  
-      const post: PostWithLikesInfo | null =
-        await this.postQuerySqlRepository.getPostById(postId);
-  
-      if (post) {
-        return post;
-      } else {
-        throw new NotFoundException('Cannot create post- :method-post,url-posts');
-      }
-    }*/
+  @UseGuards(AuthGuard)
+  @Post()
+  async createPost(@Body() createPostInputModel: CreatePostInputModel) {
+    /* создать новый пост  и вернуть данные этого поста и также
+    внутри структуру данных(снулевыми значениями)  о лайках  к этому посту*/
+    debugger;
+    const postId: string | null =
+      await this.postService.createPost(createPostInputModel);
+
+    if (!postId) {
+      throw new NotFoundException(
+        'Cannot create post because blog does not exist-:method-post,url-posts',
+      );
+    }
+
+    return postId;
+
+    /*    const post: PostWithLikesInfo | null =
+          await this.postQuerySqlRepository.getPostById(postId);
+    
+        if (post) {
+          return post;
+        } else {
+          throw new NotFoundException('Cannot create post- :method-post,url-posts');
+        }*/
+  }
 
   @UseGuards(DataUserExtractorFromTokenGuard)
   @Get()

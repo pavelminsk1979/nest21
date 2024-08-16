@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { Usertyp } from '../users/domains/usertyp.entity';
 import { Securitydevicetyp } from '../security-device/domains/securitydevicetype.entity';
 import { Blogtyp } from '../blogs/domains/blogtyp.entity';
+import { Posttyp } from '../posts/domains/posttyp.entity';
 
 @Controller('testing')
 export class TestController {
@@ -15,6 +16,8 @@ export class TestController {
     private readonly securitydeviceRepository: Repository<Securitydevicetyp>,
     @InjectRepository(Blogtyp)
     private readonly blogtypRepository: Repository<Blogtyp>,
+    @InjectRepository(Posttyp)
+    private readonly posttypRepository: Repository<Posttyp>,
   ) {}
 
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -22,6 +25,7 @@ export class TestController {
   async deleteAllData() {
     await this.securitydeviceRepository.delete({});
     await this.usertypRepository.delete({});
+    await this.posttypRepository.delete({});
     await this.blogtypRepository.delete({});
   }
 

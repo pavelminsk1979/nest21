@@ -38,10 +38,10 @@ RETURNING id;
   async findBlog(blogId: string) {
     const result = await this.dataSource.query(
       `
- select *
-from public."blog" b
-where b.id = $1
-    `,
+   select *
+  from public."blog" b
+  where b.id = $1
+      `,
       [blogId],
     );
 

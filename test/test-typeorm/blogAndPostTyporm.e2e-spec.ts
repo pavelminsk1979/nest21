@@ -24,8 +24,6 @@ describe('tests for andpoint blog', () => {
 
     app = moduleFixture.createNestApplication();
 
-    app.use(cookieParser());
-
     applyAppSettings(app);
 
     await app.init();
@@ -86,7 +84,7 @@ describe('tests for andpoint blog', () => {
     idBlogForUpdate = res.body.id;
   });
 
-  it('get all  blogs andpoint SaBlogs', async () => {
+  it('get all  blogs andpoint blogs', async () => {
     const res = await request(app.getHttpServer())
       .get('/blogs')
 
@@ -99,7 +97,59 @@ describe('tests for andpoint blog', () => {
       .get(`/blogs/${idBlog1}`)
 
       .expect(200);
-    console.log(res.body);
+    //console.log(res.body);
+  });
+
+  it('create post1', async () => {
+    await request(app.getHttpServer())
+      .post('/posts')
+      .set('Authorization', `Basic ${loginPasswordBasic64}`)
+      .send({
+        title: 'titlePost1',
+        shortDescription: 'shortDescriptionPost1',
+        content: 'contentPost1',
+        blogId: idBlog1,
+      })
+      .expect(201);
+
+    //console.log(res.body);
+
+    //idPost = res.body.id;
+  });
+
+  it('create post2', async () => {
+    debugger;
+    const res = await request(app.getHttpServer())
+      .post('/posts')
+      //.set('Authorization', `Basic ${loginPasswordBasic64}`)
+      .send({
+        title: 'titlePost2',
+        shortDescription: 'shortDescriptionPost2',
+        content: 'contentPost2',
+        blogId: idBlog1,
+      })
+      .expect(201);
+
+    //console.log(res.body);
+
+    //idPost = res.body.id;
+  });
+
+  it('create post3', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/posts')
+      //.set('Authorization', `Basic ${loginPasswordBasic64}`)
+      .send({
+        title: 'titlePost3',
+        shortDescription: 'shortDescriptionPost3',
+        content: 'contentPost3',
+        blogId: idBlog1,
+      })
+      .expect(201);
+
+    //console.log(res.body);
+
+    //idPost = res.body.id;
   });
 
   /* it('update   blog by id', async () => {
@@ -145,51 +195,6 @@ describe('tests for andpoint blog', () => {
        .get('/blogs')
  
        .expect(200);
-     //console.log(res.body);
-   });*/
-
-  /* it('create post', async () => {
-     const res = await request(app.getHttpServer())
-       .post(`/sa/blogs/${idBlog}/posts`)
-       .set('Authorization', `Basic ${loginPasswordBasic64}`)
-       .send({
-         title: 'titlePost1',
-         shortDescription: 'shortDescriptionPost1',
-         content: 'contentPost1',
-       })
-       .expect(201);
- 
-     //console.log(res.body);
- 
-     idPost = res.body.id;
-   });*/
-
-  /* it('create post', async () => {
-     const res = await request(app.getHttpServer())
-       .post(`/sa/blogs/${idBlog}/posts`)
-       .set('Authorization', `Basic ${loginPasswordBasic64}`)
-       .send({
-         title: 'titlePost12',
-         shortDescription: 'shortDescriptionPost12',
-         content: 'contentPost12',
-         blogId: idBlog,
-       })
-       .expect(201);
- 
-     //console.log(res.body);
-   });*/
-
-  /* it('create post', async () => {
-     const res = await request(app.getHttpServer())
-       .post(`/sa/blogs/${idBlog1}/posts`)
-       .set('Authorization', `Basic ${loginPasswordBasic64}`)
-       .send({
-         title: 'titlePost222',
-         shortDescription: 'shortDescriptionPost222',
-         content: 'contentPost222',
-       })
-       .expect(201);
- 
      //console.log(res.body);
    });*/
 

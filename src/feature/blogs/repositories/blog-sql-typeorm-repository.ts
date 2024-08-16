@@ -27,4 +27,15 @@ export class BlogSqlTypeormRepository {
 
     return result.raw[0];
   }
+
+  async getBlogByBlogId(blogId: string) {
+    const result = await this.blogtypRepository
+      .createQueryBuilder('b')
+      .where('b.id = :blogId', { blogId })
+      .getOne();
+
+    if (!result) return null;
+
+    return result;
+  }
 }

@@ -1,23 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { BlogDocument } from '../../blogs/domains/domain-blog';
 import { Post, PostDocument } from '../domains/domain-post';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PostRepository } from '../repositories/post-repository';
 import { CreatePostInputModel } from '../api/pipes/create-post-input-model';
 import { LikeStatus } from '../../../common/types';
-import { LikeStatusForPostRepository } from '../../like-status-for-post/repositories/like-status-for-post-repository';
 import {
   LikeStatusForPost,
   LikeStatusForPostDocument,
 } from '../../like-status-for-post/domain/domain-like-status-for-post';
-import { BlogSqlRepository } from '../../blogs/repositories/blog-sql-repository';
-import { CreatePost } from '../api/types/dto';
 import { PostSqlRepository } from '../repositories/post-sql-repository';
 import { UpdatePostForCorrectBlogInputModel } from '../api/pipes/update-post-for-correct-blog-input-model';
 import { UsersSqlRepository } from '../../users/repositories/user-sql-repository';
 import { LikeStatusForPostWithId } from '../../like-status-for-post/types/dto';
 import { LikeStatusForPostSqlRepository } from '../../like-status-for-post/repositories/like-status-for-post-sql-repository';
+import { Blogtyp } from '../../blogs/domains/blogtyp.entity';
+import { BlogSqlTypeormRepository } from '../../blogs/repositories/blog-sql-typeorm-repository';
+import { PostSqlTypeormRepository } from '../repositories/post-sql-typeorm-repository';
+import { CreatePostTypeorm } from '../api/types/dto';
 
 @Injectable()
 /*@Injectable()-декоратор что данный клас
@@ -32,34 +32,34 @@ export class PostService {
     protected postSqlRepository: PostSqlRepository,
     @InjectModel(Post.name) private postModel: Model<PostDocument>,
     protected postRepository: PostRepository,
-    protected likeStatusForPostRepository: LikeStatusForPostRepository,
     @InjectModel(LikeStatusForPost.name)
     protected likeStatusModelForPost: Model<LikeStatusForPostDocument>,
-    protected blogSqlRepository: BlogSqlRepository,
     protected usersSqlRepository: UsersSqlRepository,
     protected likeStatusForPostSqlRepository: LikeStatusForPostSqlRepository,
+    protected blogSqlTypeormRepository: BlogSqlTypeormRepository,
+    protected postSqlTypeormRepository: PostSqlTypeormRepository,
   ) {}
 
   async createPost(createPostInputModel: CreatePostInputModel) {
     const { content, shortDescription, title, blogId } = createPostInputModel;
-
+    debugger;
     /* нужно получить документ блога из базы чтобы взять от него
 поле blogName*/
-    const blog: BlogDocument | null =
-      await this.blogSqlRepository.findBlog(blogId);
-
+    const blog: Blogtyp | null =
+      await this.blogSqlTypeormRepository.getBlogByBlogId(blogId);
+    debugger;
     if (!blog) return null;
 
     /* создаю документ post */
-    const newPost: CreatePost = {
+    const newPost: CreatePostTypeorm = {
       title,
       shortDescription,
       content,
-      blogId,
       createdAt: new Date().toISOString(),
+      blogtyp: blog,
     };
-    const postId: string | null =
-      await this.postSqlRepository.createPost(newPost);
+
+    const postId = await this.postSqlTypeormRepository.createPost(newPost);
 
     return postId;
   }
