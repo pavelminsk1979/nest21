@@ -100,7 +100,6 @@ pageSize - размер  одной страницы, ПО УМОЛЧАНИЮ 10
     const result: [Posttyp[], number] = await this.posttypRepository
       .createQueryBuilder('p')
       .leftJoinAndSelect('p.blogtyp', 'b')
-      .addSelect('b.id')
       .orderBy(`p.${sortBy}`, sortDir)
       .skip(amountSkip)
       .take(pageSize)
@@ -185,6 +184,32 @@ pagesCount это число
         totalCount,
         items: viewArrayPosts,
       };*/
+  }
+
+  async getPostByPostId(postId: string) {
+    const result: Posttyp | null = await this.posttypRepository
+      .createQueryBuilder('p')
+      .leftJoinAndSelect('p.blogtyp', 'b')
+      .where('p.id = :postId', { postId })
+      .getOne();
+
+    if (!result) return null;
+
+    return {
+      id: result.id,
+      title: result.title,
+      shortDescription: result.shortDescription,
+      content: result.content,
+      blogId: result.blogtyp.id,
+      blogName: result.blogName,
+      createdAt: result.createdAt,
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: LikeStatus.NONE,
+        newestLikes: [],
+      },
+    };
   }
 
   async createViewArrayPosts(

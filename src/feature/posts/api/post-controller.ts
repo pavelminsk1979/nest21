@@ -86,21 +86,21 @@ export class PostsController {
     return posts;
   }
 
-  @UseGuards(DataUserExtractorFromTokenGuard)
+  //@UseGuards(DataUserExtractorFromTokenGuard)
   @Get(':id')
-  async getPostById(
+  async getPostByPostId(
     @Param('id') postId: string,
-    @Req() request: Request,
+    //@Req() request: Request,
   ): Promise<PostWithLikesInfo | null> {
     /*Айдишка пользователя нужна для-- когда
 отдадим ответ в нем дудет информация
 о том какой статус учтановил данный пользователь
 который этот запрос делает */
 
-    const userId: string | null = request['userId'];
+    //const userId: string | null = request['userId'];
 
     const post: PostWithLikesInfo | null =
-      await this.postQuerySqlRepository.getPostById(postId, userId);
+      await this.postQuerySqlTypeormRepository.getPostByPostId(postId);
 
     if (post) {
       return post;

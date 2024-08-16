@@ -100,7 +100,7 @@ describe('tests for andpoint blog', () => {
   });
 
   it('create post1', async () => {
-    await request(app.getHttpServer())
+    const res = await request(app.getHttpServer())
       .post('/posts')
       .set('Authorization', `Basic ${loginPasswordBasic64}`)
       .send({
@@ -112,8 +112,10 @@ describe('tests for andpoint blog', () => {
       .expect(201);
 
     //console.log(res.body);
-
-    //idPost = res.body.id;
+    idPost = res.body.id;
+    /*  console.log('$$$$$$$$$$$$$$');
+      console.log(idPost);
+      console.log('$$$$$$$$$$$$$$');*/
   });
 
   it('create post2', async () => {
@@ -149,6 +151,22 @@ describe('tests for andpoint blog', () => {
 
     //idPost = res.body.id;
   });
+  it('create post3', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/posts')
+      .set('Authorization', `Basic ${loginPasswordBasic64}`)
+      .send({
+        title: 'titlePost3',
+        shortDescription: 'shortDescriptionPost3',
+        content: 'contentPost3',
+        blogId: idBlog2,
+      })
+      .expect(201);
+
+    //console.log(res.body);
+
+    //idPost = res.body.id;
+  });
 
   it('get all  posts', async () => {
     const res = await request(app.getHttpServer())
@@ -157,7 +175,17 @@ describe('tests for andpoint blog', () => {
 
       .expect(200);
 
-    console.log(res.body);
+    //console.log(res.body);
+  });
+
+  it('get   posts by postId', async () => {
+    const res = await request(app.getHttpServer())
+      .get(`/posts/${idPost}`)
+      .set('Authorization', `Basic ${loginPasswordBasic64}`)
+
+      .expect(200);
+
+    //console.log(res.body);
   });
 
   /* it('update   blog by id', async () => {
