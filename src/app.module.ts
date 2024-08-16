@@ -88,6 +88,7 @@ import { BlogSqlTypeormRepository } from './feature/blogs/repositories/blog-sql-
 import { BlogQuerySqlTypeormRepository } from './feature/blogs/repositories/blog-query-sql-typeorm-repository';
 import { Posttyp } from './feature/posts/domains/posttyp.entity';
 import { PostSqlTypeormRepository } from './feature/posts/repositories/post-sql-typeorm-repository';
+import { PostQuerySqlTypeormRepository } from './feature/posts/repositories/post-query-sql-typeorm-repository';
 
 dotenv.config();
 
@@ -345,6 +346,7 @@ dotenv.config();
     BlogSqlTypeormRepository,
     BlogQuerySqlTypeormRepository,
     PostSqlTypeormRepository,
+    PostQuerySqlTypeormRepository,
   ],
 })
 /*export class AppModule {} в данном контексте

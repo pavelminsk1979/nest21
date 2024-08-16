@@ -27,6 +27,7 @@ import { DataUserExtractorFromTokenGuard } from '../../../common/guard/data-user
 import { PostQuerySqlRepository } from '../repositories/post-query-sql-repository';
 import { CommentQuerySqlRepository } from '../../comments/reposetories/comment-query-sql-repository';
 import { CreatePostInputModel } from './pipes/create-post-input-model';
+import { PostQuerySqlTypeormRepository } from '../repositories/post-query-sql-typeorm-repository';
 
 @Controller('posts')
 export class PostsController {
@@ -35,6 +36,7 @@ export class PostsController {
     protected commentService: CommentService,
     protected postQuerySqlRepository: PostQuerySqlRepository,
     protected commentQuerySqlRepository: CommentQuerySqlRepository,
+    protected postQuerySqlTypeormRepository: PostQuerySqlTypeormRepository,
   ) {}
 
   @UseGuards(AuthGuard)
@@ -63,23 +65,22 @@ export class PostsController {
         }*/
   }
 
-  @UseGuards(DataUserExtractorFromTokenGuard)
+  //@UseGuards(DataUserExtractorFromTokenGuard)
   @Get()
   async getPosts(
     @Query() queryParamsPostInputModel: QueryParamsInputModel,
-    @Req() request: Request,
+    //@Req() request: Request,
   ): Promise<ViewModelWithArrayPosts> {
     /*Айдишка пользователя нужна для-- когда
  отдадим ответ в нем будет информация
  о том какой статус учтановил данный пользователь
  который этот запрос делает */
 
-    const userId: string | null = request['userId'];
+    //const userId: string | null = request['userId'];
 
     const posts: ViewModelWithArrayPosts =
-      await this.postQuerySqlRepository.getPosts(
+      await this.postQuerySqlTypeormRepository.getPosts(
         queryParamsPostInputModel,
-        userId,
       );
 
     return posts;

@@ -12,7 +12,6 @@ export class PostSqlTypeormRepository {
   ) {}
 
   async createPost(newPost: CreatePostTypeorm) {
-    debugger;
     const result = await this.posttypRepository
       .createQueryBuilder()
       .insert()
@@ -26,7 +25,7 @@ export class PostSqlTypeormRepository {
         blogtyp: newPost.blogtyp,
       })
       .execute();
-    debugger;
+
     /*вернется айдишка нового поста */
     return result.raw[0];
   }

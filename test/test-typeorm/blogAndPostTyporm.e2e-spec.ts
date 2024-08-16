@@ -117,7 +117,6 @@ describe('tests for andpoint blog', () => {
   });
 
   it('create post2', async () => {
-    debugger;
     const res = await request(app.getHttpServer())
       .post('/posts')
       .set('Authorization', `Basic ${loginPasswordBasic64}`)
@@ -149,6 +148,16 @@ describe('tests for andpoint blog', () => {
     //console.log(res.body);
 
     //idPost = res.body.id;
+  });
+
+  it('get all  posts', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/posts')
+      .set('Authorization', `Basic ${loginPasswordBasic64}`)
+
+      .expect(200);
+
+    console.log(res.body);
   });
 
   /* it('update   blog by id', async () => {
