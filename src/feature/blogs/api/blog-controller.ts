@@ -18,6 +18,7 @@ import { PostQuerySqlRepository } from '../../posts/repositories/post-query-sql-
 import { CreateBlogInputModel } from './pipes/create-blog-input-model';
 import { CreateBlogCommand } from '../services/create-blog-service';
 import { BlogQuerySqlTypeormRepository } from '../repositories/blog-query-sql-typeorm-repository';
+import { PostQuerySqlTypeormRepository } from '../../posts/repositories/post-query-sql-typeorm-repository';
 
 @Controller('blogs')
 export class BlogController {
@@ -26,9 +27,9 @@ export class BlogController {
      * и в каждой отдельный метод
      * конспект 1501*/
     protected commandBus: CommandBus,
-    protected blogQuerySqlRepository: BlogQuerySqlRepository,
     protected postQuerySqlRepository: PostQuerySqlRepository,
     protected blogQuerySqlTypeormRepository: BlogQuerySqlTypeormRepository,
+    protected postQuerySqlTypeormRepository: PostQuerySqlTypeormRepository,
   ) {}
 
   /*Nest.js автоматически возвращает следующие
@@ -151,28 +152,28 @@ export class BlogController {
       }
     }*/
 
-  @UseGuards(DataUserExtractorFromTokenGuard)
+  //@UseGuards(DataUserExtractorFromTokenGuard)
   @Get(':blogId/posts')
   async getPostsForBlog(
     @Param('blogId') blogId: string,
     @Query() queryParamsPostForBlogInputModel: QueryParamsInputModel,
-    @Req() request: Request,
+    //@Req() request: Request,
   ): Promise<ViewModelWithArrayPosts> {
     /*Айдишка пользователя нужна для-- когда
     отдадим ответ в нем дудет информация 
     о том какой статус учтановил данный пользователь
     который этот запрос делает */
 
-    const userId: string | null = request['userId'];
+    //const userId: string | null = request['userId'];
 
     //вернуть все posts(массив) для корректного блога
     //и у каждого поста  будут данные о лайках
 
-    const posts = await this.postQuerySqlRepository.getPostsByCorrectBlogId(
-      userId,
-      blogId,
-      queryParamsPostForBlogInputModel,
-    );
+    const posts =
+      await this.postQuerySqlTypeormRepository.getPostsByCorrectBlogId(
+        blogId,
+        queryParamsPostForBlogInputModel,
+      );
 
     if (posts) {
       return posts;

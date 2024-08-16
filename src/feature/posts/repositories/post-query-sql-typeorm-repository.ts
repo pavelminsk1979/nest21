@@ -8,10 +8,11 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { NewestLikes, PostWithLikesInfo } from '../api/types/views';
 import { CreatePostWithIdAndWithNameBlog } from '../api/types/dto';
-import { BlogSqlRepository } from '../../blogs/repositories/blog-sql-repository';
 import { LikeStatusForPostWithId } from '../../like-status-for-post/types/dto';
 import { SortDir } from '../../blogs/api/types/dto';
 import { Posttyp } from '../domains/posttyp.entity';
+import { BlogSqlTypeormRepository } from '../../blogs/repositories/blog-sql-typeorm-repository';
+import { Blogtyp } from '../../blogs/domains/blogtyp.entity';
 
 @Injectable()
 /*@Injectable()-декоратор что данный клас
@@ -25,9 +26,9 @@ export class PostQuerySqlTypeormRepository {
   constructor(
     @InjectModel(Post.name) private postModel: Model<PostDocument>,
     @InjectDataSource() protected dataSource: DataSource,
-    protected blogSqlRepository: BlogSqlRepository,
     @InjectRepository(Posttyp)
     private readonly posttypRepository: Repository<Posttyp>,
+    protected blogSqlTypeormRepository: BlogSqlTypeormRepository,
   ) {}
 
   async getPosts(
@@ -276,88 +277,103 @@ WHERE plike."postId" IN (${arrayPostId.map((id, idx) => `$${idx + 1}`).join(', '
   }
 
   async getPostsByCorrectBlogId(
-    userId: string | null,
     blogId: string,
     queryParams: QueryParamsInputModel,
   ) {
     ///надо проверить существует ли такой blog
 
-    const blog = await this.blogSqlRepository.findBlog(blogId);
+    const blog: Blogtyp | null =
+      await this.blogSqlTypeormRepository.getBlogByBlogId(blogId);
 
     if (!blog) return null;
 
     const { sortBy, sortDirection, pageNumber, pageSize } = queryParams;
 
-    /*   НАДО УКАЗЫВАТЬ КОЛИЧЕСТВО ПРОПУЩЕНЫХ 
-   ЗАПИСЕЙ - чтобы получать следующие за ними
+    /*   НАДО УКАЗЫВАТЬ КОЛИЧЕСТВО ПРОПУЩЕНЫХ
+ЗАПИСЕЙ - чтобы получать следующие за ними
 
-    ЗНАЧЕНИЯ ПО УМОЛЧАНИЯ В ФАЙЛЕ
-    query-params-input-model.ts
+ЗНАЧЕНИЯ ПО УМОЛЧАНИЯ В ФАЙЛЕ
+query-params-input-model.ts
 
-   pageNumber по умолчанию 1, тобишь 
-   мне надо первую страницу на фронтенд отдать
-   , и это будут первые 10 записей из таблицы
+pageNumber по умолчанию 1, тобишь
+мне надо первую страницу на фронтенд отдать
+, и это будут первые 10 записей из таблицы
 
- pageSize - размер  одной страницы, ПО УМОЛЧАНИЮ 10
-   ТОБИШЬ НАДО ПРОПУСКАТЬ НОЛЬ ЗАПИСЕЙ
-   (pageNumber - 1) * pageSize
- */
+pageSize - размер  одной страницы, ПО УМОЛЧАНИЮ 10
+ТОБИШЬ НАДО ПРОПУСКАТЬ НОЛЬ ЗАПИСЕЙ
+(pageNumber - 1) * pageSize
+
+
+*/
 
     const amountSkip = (pageNumber - 1) * pageSize;
 
-    /*
-  ФИЛЬТР БЫЛ ПО ВВЕДЕННЫМ СИМВОЛАМ-НАПОМНЮ
-    -передается от фронта "Jo" для определенной колонки и
-    если  есть записи в базе данных  и у этих записей
-    у ДАННОЙ КОЛОКИ например существуют  "John",
-      "Johanna" и "Jonathan", тогда эти  три записи будут
-    выбраны и возвращен
+    /*  Сортировка данных,
 
-    СЕЙЧАС ФИЛЬТР ПО  blogId
+.orderBy(`b.${sortBy}`, sortDir)
 
+
+    sortDir это кастыль чтоб весь код не упал
+     * ибо менять в енамке - и много где енамка используется 
+    let sortDir: SortDir;
+    if (sortDirection === 'asc') {
+      sortDir = 'ASC';
+    } else {
+      sortDir = 'DESC';
+    }
+    
+    
+    ........................................
+            ----Для вывода данных порциями используется
+    два оператора:
+
+  .skip(amountSkip)
+      .take(pageSize)
+
+    -limit - для ограничения количества записей из таблицы
+  которое количество я хочу в результате получить---это
+  число в переменной pageSize - по умолчанию 10
+
+  -offset -это сколько записей надо пропустить,
+   это в переменной amountSkip   ....например если
+  лимит в 10 записей и от фронтенда просят 2-ую страницу,
+  значит надо пропустить (2-1)*10 =  10 записей
 
 
     */
 
-    const result = await this.dataSource.query(
-      `
-       SELECT p.*, b.name
-      FROM public.post p
-      LEFT JOIN public.blog b ON p."blogId" = b.id
-      WHERE p."blogId" = $1 
-      ORDER BY p."${sortBy}" COLLATE "C" ${sortDirection}  
-        LIMIT $2 OFFSET $3
-     
-      `,
-      [blogId, pageSize, amountSkip],
-    );
+    let sortDir: SortDir;
+    if (sortDirection === 'asc') {
+      sortDir = 'ASC';
+    } else {
+      sortDir = 'DESC';
+    }
 
-    /* totalCountQuery - это запрос для получения общего
- количества записей. Здесь используется функция
-  COUNT(*), которая подсчитывает все строки из
-   таблицы "post" с учетом объединения с таблицей "blog".*/
+    const result: [Posttyp[], number] = await this.posttypRepository
+      .createQueryBuilder('p')
+      .leftJoinAndSelect('p.blogtyp', 'b')
+      .where('b.id = :blogId', { blogId })
+      .orderBy(`p.${sortBy}`, sortDir)
+      .skip(amountSkip)
+      .take(pageSize)
+      .getManyAndCount();
 
-    const totalCountQuery = await this.dataSource.query(
-      `
-  SELECT COUNT(*) AS value
-  FROM public.post p
-  LEFT JOIN public.blog b ON p."blogId" = b.id
-  WHERE p."blogId"  = $1
-  `,
-      [blogId],
-    );
+    /*    result: [Blogtyp[], number]     возвращает кортеж, 
+  где первый элемент - массив объектов, удовлетворяющих
+   запросу, а второй элемент - общее количество записей
+    в базе данных, удовлетворяющих условию запроса
+     без учета операции take(pageSize).*/
 
-    const totalCount = Number(totalCountQuery[0].value);
+    const totalCount = result[1];
 
     /*
 pagesCount это число
-Вычисляется общее количество страниц путем деления общего
-количества документов на размер страницы (pageSize),
- и округление вверх с помощью функции Math.ceil.*/
+Вычисляется общее количество страниц путем деления общего количества
+записей  на размер страницы (pageSize), и округление вверх с помощью функции Math.ceil.*/
 
     const pagesCount: number = Math.ceil(totalCount / pageSize);
 
-    if (result.length === 0) {
+    if (result[0].length === 0) {
       return {
         pagesCount,
         page: pageNumber,
@@ -368,18 +384,35 @@ pagesCount это число
     }
 
     /*
- далее перед отправкой на фронтенд 
- приведу массив result к тому виду
- который ожидает  фронтенд
-  и добавлю информацию из 
- таблицы ЛАЙКИ к ПОСТАМ 
- 
- */
+далее перед отправкой на фронтенд 
+приведу массив arrayPosts к тому виду
+который ожидает  фронтенд
+ и добавлю информацию из 
+таблицы ЛАЙКИ к ПОСТАМ 
 
-    const viewArrayPosts: PostWithLikesInfo[] = await this.createViewArrayPosts(
-      userId,
-      result,
-    );
+*/
+
+    //////////////////////////////////////////////////
+    //временный короткий вариант
+    ////////////////////////////////
+
+    const viewArrayPosts: PostWithLikesInfo[] = result[0].map((el: Posttyp) => {
+      return {
+        id: el.id,
+        title: el.title,
+        shortDescription: el.shortDescription,
+        content: el.content,
+        blogId: el.blogtyp.id,
+        blogName: el.blogName,
+        createdAt: el.createdAt,
+        extendedLikesInfo: {
+          likesCount: 0,
+          dislikesCount: 0,
+          myStatus: LikeStatus.NONE,
+          newestLikes: [],
+        },
+      };
+    });
 
     return {
       pagesCount,
@@ -388,6 +421,23 @@ pagesCount это число
       totalCount,
       items: viewArrayPosts,
     };
+
+    /////////////////////////////////////////////////////
+    //то что ниже может понадобится
+    ////////////////////////////////////////////////
+
+    /*    const viewArrayPosts: PostWithLikesInfo[] = await this.createViewArrayPosts(
+          userId,
+          result,
+        );
+    
+        return {
+          pagesCount,
+          page: pageNumber,
+          pageSize: pageSize,
+          totalCount,
+          items: viewArrayPosts,
+        };*/
   }
 
   async getPostById(postId: string, userId: string | null) {

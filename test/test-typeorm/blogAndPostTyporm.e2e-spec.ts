@@ -188,6 +188,16 @@ describe('tests for andpoint blog', () => {
     //console.log(res.body);
   });
 
+  it('get all  posts for correct blog', async () => {
+    const res = await request(app.getHttpServer())
+      .get(`/blogs/${idBlog1}/posts`)
+      .set('Authorization', `Basic ${loginPasswordBasic64}`)
+
+      .expect(200);
+
+    console.log(res.body);
+  });
+
   /* it('update   blog by id', async () => {
      const res = await request(app.getHttpServer())
        .put(`/sa/blogs/${idBlogForUpdate}`)
