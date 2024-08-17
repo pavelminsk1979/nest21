@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { BlogRepository } from '../repositories/blog-repository';
 import { CreateBlogInputModel } from '../api/pipes/create-blog-input-model';
 import { CommandHandler } from '@nestjs/cqrs';
 import { CreateBlog } from '../api/types/dto';
-import { BlogSqlRepository } from '../repositories/blog-sql-repository';
 import { BlogSqlTypeormRepository } from '../repositories/blog-sql-typeorm-repository';
 
 export class CreateBlogCommand {

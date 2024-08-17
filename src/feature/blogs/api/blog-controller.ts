@@ -6,15 +6,10 @@ import {
   Param,
   Post,
   Query,
-  Req,
-  UseGuards,
 } from '@nestjs/common';
 import { ViewModelWithArrayPosts } from '../../posts/api/types/views';
 import { CommandBus } from '@nestjs/cqrs';
 import { QueryParamsInputModel } from '../../../common/pipes/query-params-input-model';
-import { DataUserExtractorFromTokenGuard } from '../../../common/guard/data-user-extractor-from-token-guard';
-import { BlogQuerySqlRepository } from '../repositories/blog-query-sql-repository';
-import { PostQuerySqlRepository } from '../../posts/repositories/post-query-sql-repository';
 import { CreateBlogInputModel } from './pipes/create-blog-input-model';
 import { CreateBlogCommand } from '../services/create-blog-service';
 import { BlogQuerySqlTypeormRepository } from '../repositories/blog-query-sql-typeorm-repository';
@@ -27,7 +22,6 @@ export class BlogController {
      * и в каждой отдельный метод
      * конспект 1501*/
     protected commandBus: CommandBus,
-    protected postQuerySqlRepository: PostQuerySqlRepository,
     protected blogQuerySqlTypeormRepository: BlogQuerySqlTypeormRepository,
     protected postQuerySqlTypeormRepository: PostQuerySqlTypeormRepository,
   ) {}

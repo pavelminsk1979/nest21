@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateBlog } from '../api/types/dto';
 import { Blogtyp } from '../domains/blogtyp.entity';
+import { CreateBlogInputModel } from '../api/pipes/create-blog-input-model';
 
 @Injectable()
 export class BlogSqlTypeormRepository {
@@ -37,5 +38,38 @@ export class BlogSqlTypeormRepository {
     if (!result) return null;
 
     return result;
+  }
+
+  async updateBlog(blogId: string, updateBlogInputModel: CreateBlogInputModel) {
+    const result = await this.blogtypRepository
+      .createQueryBuilder()
+      .update(Blogtyp)
+      .set({
+        name: updateBlogInputModel.name,
+        description: updateBlogInputModel.description,
+        websiteUrl: updateBlogInputModel.websiteUrl,
+      })
+      .where('id = :blogId', { blogId })
+      .execute();
+
+    /* result.raw[0];  первый
+    элемент массива raw,представляет
+    обновленные данные блога  ИЛИ МАССИВ БУДЕТ ПУСТОЙ*/
+
+    if (result.raw === 0) return false;
+    return true;
+  }
+
+  async deleteBlogById(blogId: string) {
+    const result = await this.blogtypRepository
+      .createQueryBuilder()
+      .delete()
+      .where('id = :blogId', { blogId })
+      .execute();
+
+    /*affected указывает на количество удаленных записей */
+
+    if (result.affected === 0) return false;
+    return true;
   }
 }

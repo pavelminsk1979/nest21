@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogSqlRepository } from '../repositories/blog-sql-repository';
+import { BlogSqlTypeormRepository } from '../repositories/blog-sql-typeorm-repository';
 
 /*sqrs конспект 1501*/
 export class DeleteBlogByIdCommand {
@@ -12,9 +13,12 @@ export class DeleteBlogByIdCommand {
 export class DeleteBlogByIdService
   implements ICommandHandler<DeleteBlogByIdCommand>
 {
-  constructor(protected blogSqlRepository: BlogSqlRepository) {}
+  constructor(
+    protected blogSqlRepository: BlogSqlRepository,
+    protected blogSqlTypeormRepository: BlogSqlTypeormRepository,
+  ) {}
 
   async execute(command: DeleteBlogByIdCommand): Promise<boolean | null> {
-    return this.blogSqlRepository.deleteBlogById(command.blogId);
+    return this.blogSqlTypeormRepository.deleteBlogById(command.blogId);
   }
 }

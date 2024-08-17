@@ -32,6 +32,8 @@ import { BlogQuerySqlRepository } from '../repositories/blog-query-sql-repositor
 import { PostQuerySqlRepository } from '../../posts/repositories/post-query-sql-repository';
 import { UpdatePostForCorrectBlogInputModel } from '../../posts/api/pipes/update-post-for-correct-blog-input-model';
 import { PostService } from '../../posts/services/post-service';
+import { PostQuerySqlTypeormRepository } from '../../posts/repositories/post-query-sql-typeorm-repository';
+import { BlogQuerySqlTypeormRepository } from '../repositories/blog-query-sql-typeorm-repository';
 
 @Controller('sa/blogs')
 export class SaBlogController {
@@ -43,6 +45,8 @@ export class SaBlogController {
     protected blogQuerySqlRepository: BlogQuerySqlRepository,
     protected postQuerySqlRepository: PostQuerySqlRepository,
     protected postService: PostService,
+    protected postQuerySqlTypeormRepository: PostQuerySqlTypeormRepository,
+    protected blogQuerySqlTypeormRepository: BlogQuerySqlTypeormRepository,
   ) {}
 
   /*Nest.js автоматически возвращает следующие
@@ -59,15 +63,9 @@ export class SaBlogController {
   async createBlog(
     @Body() createBlogInputModel: CreateBlogInputModel,
   ): Promise<ViewBlog> {
-    const id: string | null = await this.commandBus.execute(
+    const blog = await this.commandBus.execute(
       new CreateBlogCommand(createBlogInputModel),
     );
-
-    if (!id) {
-      throw new NotFoundException('blog not create:andpoint-post,url /blogs');
-    }
-
-    const blog = await this.blogQuerySqlRepository.getBlogById(id);
 
     if (blog) {
       return blog;
@@ -79,7 +77,7 @@ export class SaBlogController {
   @UseGuards(AuthGuard)
   @Get()
   async getBlogs(@Query() queryParamsBlogInputModel: QueryParamsInputModel) {
-    const blogs = await this.blogQuerySqlRepository.getBlogs(
+    const blogs = await this.blogQuerySqlTypeormRepository.getBlogs(
       queryParamsBlogInputModel,
     );
 
