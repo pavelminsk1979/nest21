@@ -52,11 +52,12 @@ export class BlogSqlTypeormRepository {
       .where('id = :blogId', { blogId })
       .execute();
 
-    /* result.raw[0];  первый
-    элемент массива raw,представляет
-    обновленные данные блога  ИЛИ МАССИВ БУДЕТ ПУСТОЙ*/
+    /* result это вот такая структура 
+    UpdateResult { generatedMaps: [], raw: [], affected: 0 }
+     affected-- это количество измененных саписей 
+   */
 
-    if (result.raw === 0) return false;
+    if (result.affected === 0) return false;
     return true;
   }
 

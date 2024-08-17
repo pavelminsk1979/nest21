@@ -21,7 +21,7 @@ export class CreateBlogService {
       description,
       websiteUrl,
       createdAt: new Date().toISOString(),
-      isMembership: true,
+      isMembership: false,
     };
 
     const blog = await this.blogSqlTypeormRepository.createNewBlog(newBlog);

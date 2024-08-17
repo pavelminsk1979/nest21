@@ -105,6 +105,19 @@ describe('tests for andpoint blog', () => {
       .expect(204);
     //console.log(res.body);
   });
+  it('update   blog by id', async () => {
+    const badId = '602afe92-7d97-4395-b1b9-6cf98b351bbe';
+    const res = await request(app.getHttpServer())
+      .put(`/sa/blogs/${badId}`)
+      .set('Authorization', `Basic ${loginPasswordBasic64}`)
+      .send({
+        name: 'nameUpdate',
+        description: 'descripUpdate',
+        websiteUrl: 'https://www.outueUpdate.com/',
+      })
+      .expect(404);
+    //console.log(res.body);
+  });
 
   it('delete   blog by id', async () => {
     const res = await request(app.getHttpServer())
@@ -115,13 +128,23 @@ describe('tests for andpoint blog', () => {
     //console.log(res.body);
   });
 
-  /* it('get  blog by id', async () => {
-     const res = await request(app.getHttpServer())
-       .get(`/blogs/${idBlog1}`)
- 
-       .expect(200);
-     //console.log(res.body);
-   });*/
+  it('delete   blog by id', async () => {
+    const badId = '602afe92-7d97-4395-b1b9-6cf98b351bbe';
+    const res = await request(app.getHttpServer())
+      .delete(`/sa/blogs/${badId}`)
+      .set('Authorization', `Basic ${loginPasswordBasic64}`)
+
+      .expect(404);
+    //console.log(res.body);
+  });
+
+  it('get  blog by id', async () => {
+    const res = await request(app.getHttpServer())
+      .get(`/blogs/${idBlog1}`)
+
+      .expect(200);
+    //console.log(res.body);
+  });
 
   /*  it('create post1', async () => {
       const res = await request(app.getHttpServer())

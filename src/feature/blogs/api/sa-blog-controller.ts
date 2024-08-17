@@ -32,7 +32,6 @@ import { BlogQuerySqlRepository } from '../repositories/blog-query-sql-repositor
 import { PostQuerySqlRepository } from '../../posts/repositories/post-query-sql-repository';
 import { UpdatePostForCorrectBlogInputModel } from '../../posts/api/pipes/update-post-for-correct-blog-input-model';
 import { PostService } from '../../posts/services/post-service';
-import { PostQuerySqlTypeormRepository } from '../../posts/repositories/post-query-sql-typeorm-repository';
 import { BlogQuerySqlTypeormRepository } from '../repositories/blog-query-sql-typeorm-repository';
 
 @Controller('sa/blogs')
@@ -45,7 +44,6 @@ export class SaBlogController {
     protected blogQuerySqlRepository: BlogQuerySqlRepository,
     protected postQuerySqlRepository: PostQuerySqlRepository,
     protected postService: PostService,
-    protected postQuerySqlTypeormRepository: PostQuerySqlTypeormRepository,
     protected blogQuerySqlTypeormRepository: BlogQuerySqlTypeormRepository,
   ) {}
 
