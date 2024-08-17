@@ -61,9 +61,17 @@ export class SaBlogController {
   async createBlog(
     @Body() createBlogInputModel: CreateBlogInputModel,
   ): Promise<ViewBlog> {
-    const blog = await this.commandBus.execute(
+    const blogId = await this.commandBus.execute(
       new CreateBlogCommand(createBlogInputModel),
     );
+
+    if (!blogId) {
+      throw new NotFoundException(
+        'blog not create:andpoint-post,url /sa/blogs',
+      );
+    }
+
+    const blog = await this.blogQuerySqlTypeormRepository.getBlogById(blogId);
 
     if (blog) {
       return blog;

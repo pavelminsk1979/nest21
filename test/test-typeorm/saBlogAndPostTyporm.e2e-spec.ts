@@ -63,7 +63,8 @@ describe('tests for andpoint blog', () => {
       })
       .expect(201);
 
-    //console.log(res.body.id);
+    /* console.log('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&');
+     console.log(res.body);*/
 
     idBlog2 = res.body.id;
   });

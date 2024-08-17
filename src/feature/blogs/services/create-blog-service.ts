@@ -24,17 +24,6 @@ export class CreateBlogService {
       isMembership: false,
     };
 
-    const blog = await this.blogSqlTypeormRepository.createNewBlog(newBlog);
-
-    if (!blog) return null;
-
-    return {
-      id: blog.id,
-      name: blog.name,
-      description: blog.description,
-      websiteUrl: blog.websiteUrl,
-      createdAt: blog.createdAt,
-      isMembership: blog.isMembership,
-    };
+    return this.blogSqlTypeormRepository.createNewBlog(newBlog);
   }
 }

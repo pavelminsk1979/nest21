@@ -26,7 +26,7 @@ export class BlogSqlTypeormRepository {
       })
       .execute();
 
-    return result.raw[0];
+    return result.raw[0].id;
   }
 
   async getBlogByBlogId(blogId: string) {
