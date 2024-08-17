@@ -18,6 +18,7 @@ import { Blogtyp } from '../../blogs/domains/blogtyp.entity';
 import { BlogSqlTypeormRepository } from '../../blogs/repositories/blog-sql-typeorm-repository';
 import { PostSqlTypeormRepository } from '../repositories/post-sql-typeorm-repository';
 import { CreatePostTypeorm } from '../api/types/dto';
+import { CreatePostForBlogInputModel } from '../../blogs/api/pipes/create-post-for-blog-input-model';
 
 @Injectable()
 /*@Injectable()-декоратор что данный клас
@@ -39,6 +40,32 @@ export class PostService {
     protected blogSqlTypeormRepository: BlogSqlTypeormRepository,
     protected postSqlTypeormRepository: PostSqlTypeormRepository,
   ) {}
+
+  async createPostForCorrectBlog(
+    blogId: string,
+    createPostForBlogInputModel: CreatePostForBlogInputModel,
+  ) {
+    const { content, shortDescription, title } = createPostForBlogInputModel;
+
+    /* нужно получить документ блога из базы чтобы взять от него
+поле blogName И ЗАОДНО ПРОВЕРИТЬ ЕСТЬ ТАКОЙ БЛОГ ИЛИ НЕТ В БАЗЕ */
+    const blog: Blogtyp | null =
+      await this.blogSqlTypeormRepository.getBlogByBlogId(blogId);
+
+    if (!blog) return null;
+
+    /* создаю документ post */
+    const newPost: CreatePostTypeorm = {
+      title,
+      shortDescription,
+      content,
+      createdAt: new Date().toISOString(),
+      blogName: blog.name,
+      blogtyp: blog,
+    };
+
+    return this.postSqlTypeormRepository.createPost(newPost);
+  }
 
   async createPost(createPostInputModel: CreatePostInputModel) {
     const { content, shortDescription, title, blogId } = createPostInputModel;

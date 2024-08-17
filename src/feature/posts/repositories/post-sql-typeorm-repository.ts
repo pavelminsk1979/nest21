@@ -27,6 +27,6 @@ export class PostSqlTypeormRepository {
       .execute();
 
     /*вернется айдишка нового поста */
-    return result.raw[0];
+    return result.raw[0].id;
   }
 }

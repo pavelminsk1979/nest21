@@ -128,7 +128,7 @@ dotenv.config();
       database: 'typeOrmDatabase',
       autoLoadEntities: true,
       synchronize: true,
-      logging: ['query'],
+      //logging: ['query'],
     }),
     TypeOrmModule.forFeature([Usertyp, Securitydevicetyp, Blogtyp, Posttyp]),
 

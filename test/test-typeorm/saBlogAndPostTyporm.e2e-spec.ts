@@ -147,6 +147,21 @@ describe('tests for andpoint blog', () => {
     //console.log(res.body);
   });
 
+  it('create post1 for correct blog', async () => {
+    const res = await request(app.getHttpServer())
+      .post(`/sa/blogs/${idBlog1}/posts`)
+      .set('Authorization', `Basic ${loginPasswordBasic64}`)
+      .send({
+        title: 'saTitlePost1',
+        shortDescription: 'saShortDescriptionPost1',
+        content: 'saContentPost1',
+      })
+      .expect(201);
+    console.log('test');
+    console.log(res.body);
+    console.log('test');
+  });
+
   /*  it('create post1', async () => {
       const res = await request(app.getHttpServer())
         .post('/posts')

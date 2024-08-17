@@ -23,7 +23,6 @@ import { CreatePostForBlogInputModel } from './pipes/create-post-for-blog-input-
 import { DeleteBlogByIdCommand } from '../services/delete-blog-by-id-service';
 import { UpdateBlogCommand } from '../services/update-blog-service';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreatePostForBlogCommand } from '../services/create-post-for-blog-service';
 import { CreateBlogCommand } from '../services/create-blog-service';
 import { AuthGuard } from '../../../common/guard/auth-guard';
 import { QueryParamsInputModel } from '../../../common/pipes/query-params-input-model';
@@ -33,6 +32,7 @@ import { PostQuerySqlRepository } from '../../posts/repositories/post-query-sql-
 import { UpdatePostForCorrectBlogInputModel } from '../../posts/api/pipes/update-post-for-correct-blog-input-model';
 import { PostService } from '../../posts/services/post-service';
 import { BlogQuerySqlTypeormRepository } from '../repositories/blog-query-sql-typeorm-repository';
+import { PostQuerySqlTypeormRepository } from '../../posts/repositories/post-query-sql-typeorm-repository';
 
 @Controller('sa/blogs')
 export class SaBlogController {
@@ -45,6 +45,7 @@ export class SaBlogController {
     protected postQuerySqlRepository: PostQuerySqlRepository,
     protected postService: PostService,
     protected blogQuerySqlTypeormRepository: BlogQuerySqlTypeormRepository,
+    protected postQuerySqlTypeormRepository: PostQuerySqlTypeormRepository,
   ) {}
 
   /*Nest.js автоматически возвращает следующие
@@ -138,27 +139,30 @@ export class SaBlogController {
     }
   }
 
-  @UseGuards(AuthGuard, DataUserExtractorFromTokenGuard)
+  //@UseGuards(AuthGuard, DataUserExtractorFromTokenGuard)
+  @UseGuards(AuthGuard)
   @Post(':blogId/posts')
   async createPostFortBlog(
     @Param('blogId') blogId: string,
     @Body() createPostForBlogInputModel: CreatePostForBlogInputModel,
-    @Req() request: Request,
-  ): Promise<PostWithLikesInfo | null> {
+    // @Req() request: Request,
+  ) {
     /* чтобы переиспользовать в этом обработчике метод
  getPostById  ему нужна (userId)- она будет 
  в данном случае null но главное что удовлетворяю
  метод значением-userId*/
 
-    const userId: string | null = request['userId'];
+    // const userId: string | null = request['userId'];
 
     /* создать новый пост ДЛЯ КОНКРЕТНОГО БЛОГА и вернут
      данные этого поста и также структуру 
     данных(снулевыми значениями)  о лайках к этому посту*/
 
-    const postId: string | null = await this.commandBus.execute(
-      new CreatePostForBlogCommand(blogId, createPostForBlogInputModel),
-    );
+    const postId: string | null =
+      await this.postService.createPostForCorrectBlog(
+        blogId,
+        createPostForBlogInputModel,
+      );
 
     if (!postId) {
       throw new NotFoundException(
@@ -166,8 +170,8 @@ export class SaBlogController {
       );
     }
 
-    const post: PostWithLikesInfo | null =
-      await this.postQuerySqlRepository.getPostById(postId, userId);
+    const post =
+      await this.postQuerySqlTypeormRepository.getPostByPostId(postId);
 
     if (post) {
       return post;
@@ -177,6 +181,46 @@ export class SaBlogController {
       );
     }
   }
+
+  /*  @UseGuards(AuthGuard, DataUserExtractorFromTokenGuard)
+    @Post(':blogId/posts')
+    async createPostFortBlog(
+      @Param('blogId') blogId: string,
+      @Body() createPostForBlogInputModel: CreatePostForBlogInputModel,
+      @Req() request: Request,
+    ): Promise<PostWithLikesInfo | null> {
+      /!* чтобы переиспользовать в этом обработчике метод
+   getPostById  ему нужна (userId)- она будет 
+   в данном случае null но главное что удовлетворяю
+   метод значением-userId*!/
+  
+      const userId: string | null = request['userId'];
+  
+      /!* создать новый пост ДЛЯ КОНКРЕТНОГО БЛОГА и вернут
+       данные этого поста и также структуру 
+      данных(снулевыми значениями)  о лайках к этому посту*!/
+  
+      const postId: string | null = await this.commandBus.execute(
+        new CreatePostForBlogCommand(blogId, createPostForBlogInputModel),
+      );
+  
+      if (!postId) {
+        throw new NotFoundException(
+          'Not found blog- ' + ':method-post,url -blogs/:blogId /post',
+        );
+      }
+  
+      const post: PostWithLikesInfo | null =
+        await this.postQuerySqlRepository.getPostById(postId, userId);
+  
+      if (post) {
+        return post;
+      } else {
+        throw new NotFoundException(
+          'Not create post- ' + ':method-post,url -blogs/:blogId /post',
+        );
+      }
+    }*/
 
   @UseGuards(AuthGuard, DataUserExtractorFromTokenGuard)
   @Get(':blogId/posts')
