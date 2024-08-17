@@ -10,14 +10,10 @@ import {
   Post,
   Put,
   Query,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ViewBlog } from './types/views';
-import {
-  PostWithLikesInfo,
-  ViewModelWithArrayPosts,
-} from '../../posts/api/types/views';
+import { ViewModelWithArrayPosts } from '../../posts/api/types/views';
 import { CreateBlogInputModel } from './pipes/create-blog-input-model';
 import { CreatePostForBlogInputModel } from './pipes/create-post-for-blog-input-model';
 import { DeleteBlogByIdCommand } from '../services/delete-blog-by-id-service';
@@ -26,7 +22,6 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../services/create-blog-service';
 import { AuthGuard } from '../../../common/guard/auth-guard';
 import { QueryParamsInputModel } from '../../../common/pipes/query-params-input-model';
-import { DataUserExtractorFromTokenGuard } from '../../../common/guard/data-user-extractor-from-token-guard';
 import { BlogQuerySqlRepository } from '../repositories/blog-query-sql-repository';
 import { PostQuerySqlRepository } from '../../posts/repositories/post-query-sql-repository';
 import { UpdatePostForCorrectBlogInputModel } from '../../posts/api/pipes/update-post-for-correct-blog-input-model';
@@ -42,7 +37,6 @@ export class SaBlogController {
      * конспект 1501*/
     protected commandBus: CommandBus,
     protected blogQuerySqlRepository: BlogQuerySqlRepository,
-    protected postQuerySqlRepository: PostQuerySqlRepository,
     protected postService: PostService,
     protected blogQuerySqlTypeormRepository: BlogQuerySqlTypeormRepository,
     protected postQuerySqlTypeormRepository: PostQuerySqlTypeormRepository,
@@ -222,28 +216,28 @@ export class SaBlogController {
       }
     }*/
 
-  @UseGuards(AuthGuard, DataUserExtractorFromTokenGuard)
+  @UseGuards(AuthGuard)
   @Get(':blogId/posts')
   async getPostsForBlog(
     @Param('blogId') blogId: string,
     @Query() queryParamsPostForBlogInputModel: QueryParamsInputModel,
-    @Req() request: Request,
+    //@Req() request: Request,
   ): Promise<ViewModelWithArrayPosts> {
     /*Айдишка пользователя нужна для-- когда
     отдадим ответ в нем дудет информация 
     о том какой статус учтановил данный пользователь
     который этот запрос делает */
 
-    const userId: string | null = request['userId'];
+    //const userId: string | null = request['userId'];
 
     //вернуть все posts(массив) для корректного блога
     //и у каждого поста  будут данные о лайках
 
-    const posts = await this.postQuerySqlRepository.getPostsByCorrectBlogId(
-      userId,
-      blogId,
-      queryParamsPostForBlogInputModel,
-    );
+    const posts =
+      await this.postQuerySqlTypeormRepository.getPostsByCorrectBlogId(
+        blogId,
+        queryParamsPostForBlogInputModel,
+      );
 
     if (posts) {
       return posts;
@@ -253,6 +247,38 @@ export class SaBlogController {
       );
     }
   }
+
+  /* @UseGuards(AuthGuard, DataUserExtractorFromTokenGuard)
+   @Get(':blogId/posts')
+   async getPostsForBlog(
+     @Param('blogId') blogId: string,
+     @Query() queryParamsPostForBlogInputModel: QueryParamsInputModel,
+     @Req() request: Request,
+   ): Promise<ViewModelWithArrayPosts> {
+     /!*Айдишка пользователя нужна для-- когда
+     отдадим ответ в нем дудет информация 
+     о том какой статус учтановил данный пользователь
+     который этот запрос делает *!/
+ 
+     const userId: string | null = request['userId'];
+ 
+     //вернуть все posts(массив) для корректного блога
+     //и у каждого поста  будут данные о лайках
+ 
+     const posts = await this.postQuerySqlRepository.getPostsByCorrectBlogId(
+       userId,
+       blogId,
+       queryParamsPostForBlogInputModel,
+     );
+ 
+     if (posts) {
+       return posts;
+     } else {
+       throw new NotFoundException(
+         'blog  is not exists  ' + ':method-get,url -blogs/:blogId /posts',
+       );
+     }
+   }*/
 
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)

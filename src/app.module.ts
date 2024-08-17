@@ -89,6 +89,8 @@ import { BlogQuerySqlTypeormRepository } from './feature/blogs/repositories/blog
 import { Posttyp } from './feature/posts/domains/posttyp.entity';
 import { PostSqlTypeormRepository } from './feature/posts/repositories/post-sql-typeorm-repository';
 import { PostQuerySqlTypeormRepository } from './feature/posts/repositories/post-query-sql-typeorm-repository';
+import { LikeStatusForPostTyp } from './feature/like-status-for-post/domain/typ-like-status-for-post.entity';
+import { LikeStatusForPostSqlTypeormRepository } from './feature/like-status-for-post/repositories/like-status-for-post-sql-typeorm-repository';
 
 dotenv.config();
 
@@ -130,7 +132,13 @@ dotenv.config();
       synchronize: true,
       //logging: ['query'],
     }),
-    TypeOrmModule.forFeature([Usertyp, Securitydevicetyp, Blogtyp, Posttyp]),
+    TypeOrmModule.forFeature([
+      Usertyp,
+      Securitydevicetyp,
+      Blogtyp,
+      Posttyp,
+      LikeStatusForPostTyp,
+    ]),
 
     /*    --------type: 'postgres',    определяет  базу данных
     к которой подключаюсь
@@ -347,6 +355,7 @@ dotenv.config();
     BlogQuerySqlTypeormRepository,
     PostSqlTypeormRepository,
     PostQuerySqlTypeormRepository,
+    LikeStatusForPostSqlTypeormRepository,
   ],
 })
 /*export class AppModule {} в данном контексте

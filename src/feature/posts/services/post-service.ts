@@ -9,16 +9,15 @@ import {
   LikeStatusForPost,
   LikeStatusForPostDocument,
 } from '../../like-status-for-post/domain/domain-like-status-for-post';
-import { PostSqlRepository } from '../repositories/post-sql-repository';
 import { UpdatePostForCorrectBlogInputModel } from '../api/pipes/update-post-for-correct-blog-input-model';
-import { UsersSqlRepository } from '../../users/repositories/user-sql-repository';
-import { LikeStatusForPostWithId } from '../../like-status-for-post/types/dto';
 import { LikeStatusForPostSqlRepository } from '../../like-status-for-post/repositories/like-status-for-post-sql-repository';
 import { Blogtyp } from '../../blogs/domains/blogtyp.entity';
 import { BlogSqlTypeormRepository } from '../../blogs/repositories/blog-sql-typeorm-repository';
 import { PostSqlTypeormRepository } from '../repositories/post-sql-typeorm-repository';
-import { CreatePostTypeorm } from '../api/types/dto';
+import { CreateLikeStatusForPost, CreatePostTypeorm } from '../api/types/dto';
 import { CreatePostForBlogInputModel } from '../../blogs/api/pipes/create-post-for-blog-input-model';
+import { LikeStatusForPostSqlTypeormRepository } from '../../like-status-for-post/repositories/like-status-for-post-sql-typeorm-repository';
+import { UserSqlTypeormRepository } from '../../users/repositories/user-sql-typeorm-repository';
 
 @Injectable()
 /*@Injectable()-декоратор что данный клас
@@ -30,15 +29,15 @@ import { CreatePostForBlogInputModel } from '../../blogs/api/pipes/create-post-f
  возможно внедрить как зависимость*/
 export class PostService {
   constructor(
-    protected postSqlRepository: PostSqlRepository,
     @InjectModel(Post.name) private postModel: Model<PostDocument>,
     protected postRepository: PostRepository,
     @InjectModel(LikeStatusForPost.name)
     protected likeStatusModelForPost: Model<LikeStatusForPostDocument>,
-    protected usersSqlRepository: UsersSqlRepository,
     protected likeStatusForPostSqlRepository: LikeStatusForPostSqlRepository,
     protected blogSqlTypeormRepository: BlogSqlTypeormRepository,
     protected postSqlTypeormRepository: PostSqlTypeormRepository,
+    protected likeStatusForPostSqlTypeormRepository: LikeStatusForPostSqlTypeormRepository,
+    protected userSqlTypeormRepository: UserSqlTypeormRepository,
   ) {}
 
   async createPostForCorrectBlog(
@@ -100,26 +99,29 @@ export class PostService {
     /*  проверить-- есть ли пост с данной айдишкой и
     чтоб он принадлежал блогу с данной айдишкой*/
 
-    const post = await this.postSqlRepository.getPost(postId);
+    const post = await this.postSqlTypeormRepository.getPostById(postId);
 
     if (!post) return false;
 
-    if (blogId !== post.blogId) return false;
+    if (blogId !== post.blogtyp.id) return false;
 
-    return this.postSqlRepository.updatePost(postId, updatePostInputModel);
+    return this.postSqlTypeormRepository.updatePost(
+      postId,
+      updatePostInputModel,
+    );
   }
 
   async deletePost(blogId: string, postId: string) {
     /*  проверить-- есть ли пост с данной айдишкой и
  чтоб он принадлежал блогу с данной айдишкой*/
 
-    const post = await this.postSqlRepository.getPost(postId);
+    const post = await this.postSqlTypeormRepository.getPostById(postId);
 
     if (!post) return false;
 
-    if (blogId !== post.blogId) return false;
+    if (blogId !== post.blogtyp.id) return false;
 
-    return this.postSqlRepository.deletePost(postId);
+    return this.postSqlTypeormRepository.deletePost(postId);
   }
 
   async deletePostById(postId: string) {
@@ -131,24 +133,33 @@ export class PostService {
     postId: string,
     likeStatus: LikeStatus,
   ) {
-    const user = await this.usersSqlRepository.getUserById(userId);
-    /*для создания нового документа(newLikeStatusForPost) потребуется
-  login  создателя--- этот login потребуется вдальнейшем когда буду 
-   формировать view для отдачи на фронт */
+    /* проверка- существует ли в базе такой ЮЗЕР 
+   И ТАКЖЕ ПОНАДОБИТСЯ ЧТОБЫ СОЗДАТЬ 
+   НОВУЮ ЗАПИСЬ В ТАБЛИЦЕ ЛАЙКПОСТ
+   и также понадобится login  создателя--- этот 
+   login потребуется вдальнейшем когда буду 
+       формировать view для отдачи на фронт*/
 
-    const login = user!.login;
+    const user = await this.userSqlTypeormRepository.getUserById(userId);
 
-    /* проверка- существует ли в базе такой пост*/
+    if (!user) return false;
 
-    const post = await this.postSqlRepository.getPost(postId);
+    const login = user.login;
+
+    /* проверка- существует ли в базе такой пост
+     * И ТАКЖЕ ПОНАДОБИТСЯ ЧТОБЫ СОЗДАТЬ
+     * НОВУЮ ЗАПИСЬ В ТАБЛИЦЕ ЛАЙКПОСТ*/
+
+    const post = await this.postSqlTypeormRepository.getPostById(postId);
 
     if (!post) return false;
 
-    /*    ищу в базе ЛайковДляПостов  один документ   по
-             двум полям userData.userId и postId---*/
+    /*  только ОДИН ЮЗЕР может поставить лайк к ОДНОМУ ПОСТУ
+      ищу в базе ЛайковДляПостов  один документ   по
+             двум полям userId и postId---*/
 
-    const likePost: LikeStatusForPostWithId | null =
-      await this.likeStatusForPostSqlRepository.findLikePostByUserIdAndPostId(
+    const likePost =
+      await this.likeStatusForPostSqlTypeormRepository.findLikePostByUserIdAndPostId(
         userId,
         postId,
       );
@@ -157,33 +168,94 @@ export class PostService {
       /*Если документа  нет тогда надо cоздать
       новый документ и добавить в базу*/
 
-      const newLikePost: LikeStatusForPost = {
-        userId,
-        postId,
+      const newLikePost: CreateLikeStatusForPost = {
+        posttyp: post,
+        usertyp: user,
         likeStatus,
         login,
         addedAt: new Date().toISOString(),
       };
 
-      return await this.likeStatusForPostSqlRepository.createLikePost(
+      return await this.likeStatusForPostSqlTypeormRepository.createLikePost(
         newLikePost,
       );
     }
 
     /*Если документ есть тогда надо изменить
-     statusLike в нем на приходящий и установить теперещнюю дату
-      установки */
+     statusLike в нем на приходящий и установить
+      теперещнюю дату  установки 
+      АЙДИШКУ ВОЗМУ ОТ НАЙДЕНОЙ ЗАПИСИ 
+      */
 
-    const currentlikeStatus = likeStatus;
+    const newDate = new Date().toISOString();
 
-    const currentAddedAt = new Date().toISOString();
+    const idLikePost = likePost.id;
 
-    const idCurrentLikePost = likePost.id;
-
-    return await this.likeStatusForPostSqlRepository.changeLikePost(
-      idCurrentLikePost,
-      currentlikeStatus,
-      currentAddedAt,
+    return await this.likeStatusForPostSqlTypeormRepository.updateLikePost(
+      idLikePost,
+      likeStatus,
+      newDate,
     );
   }
+
+  /*  async setLikestatusForPost(
+      userId: string,
+      postId: string,
+      likeStatus: LikeStatus,
+    ) {
+      const user = await this.usersSqlRepository.getUserById(userId);
+      /!*для создания нового документа(newLikeStatusForPost) потребуется
+    login  создателя--- этот login потребуется вдальнейшем когда буду 
+     формировать view для отдачи на фронт *!/
+  
+      const login = user!.login;
+  
+      /!* проверка- существует ли в базе такой пост*!/
+  
+      const post = await this.postSqlRepository.getPost(postId);
+  
+      if (!post) return false;
+  
+      /!*    ищу в базе ЛайковДляПостов  один документ   по
+               двум полям userData.userId и postId---*!/
+  
+      const likePost: LikeStatusForPostWithId | null =
+        await this.likeStatusForPostSqlRepository.findLikePostByUserIdAndPostId(
+          userId,
+          postId,
+        );
+  
+      if (!likePost) {
+        /!*Если документа  нет тогда надо cоздать
+        новый документ и добавить в базу*!/
+  
+        const newLikePost: LikeStatusForPost = {
+          userId,
+          postId,
+          likeStatus,
+          login,
+          addedAt: new Date().toISOString(),
+        };
+  
+        return await this.likeStatusForPostSqlRepository.createLikePost(
+          newLikePost,
+        );
+      }
+  
+      /!*Если документ есть тогда надо изменить
+       statusLike в нем на приходящий и установить теперещнюю дату
+        установки *!/
+  
+      const currentlikeStatus = likeStatus;
+  
+      const currentAddedAt = new Date().toISOString();
+  
+      const idCurrentLikePost = likePost.id;
+  
+      return await this.likeStatusForPostSqlRepository.changeLikePost(
+        idCurrentLikePost,
+        currentlikeStatus,
+        currentAddedAt,
+      );
+    }*/
 }

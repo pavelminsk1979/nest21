@@ -6,6 +6,7 @@ import { Usertyp } from '../users/domains/usertyp.entity';
 import { Securitydevicetyp } from '../security-device/domains/securitydevicetype.entity';
 import { Blogtyp } from '../blogs/domains/blogtyp.entity';
 import { Posttyp } from '../posts/domains/posttyp.entity';
+import { LikeStatusForPostTyp } from '../like-status-for-post/domain/typ-like-status-for-post.entity';
 
 @Controller('testing')
 export class TestController {
@@ -18,11 +19,14 @@ export class TestController {
     private readonly blogtypRepository: Repository<Blogtyp>,
     @InjectRepository(Posttyp)
     private readonly posttypRepository: Repository<Posttyp>,
+    @InjectRepository(LikeStatusForPostTyp)
+    private readonly likeForPostTypRepository: Repository<LikeStatusForPostTyp>,
   ) {}
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('all-data')
   async deleteAllData() {
+    await this.likeForPostTypRepository.delete({});
     await this.securitydeviceRepository.delete({});
     await this.usertypRepository.delete({});
     await this.posttypRepository.delete({});

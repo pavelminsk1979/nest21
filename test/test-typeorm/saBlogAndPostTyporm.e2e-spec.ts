@@ -13,7 +13,7 @@ describe('tests for andpoint blog', () => {
 
   let idBlogForUpdate;
 
-  let idPost;
+  let idPost1;
 
   const loginPasswordBasic64 = 'YWRtaW46cXdlcnR5';
 
@@ -147,7 +147,7 @@ describe('tests for andpoint blog', () => {
     //console.log(res.body);
   });
 
-  it('create post1 for correct blog', async () => {
+  it('create post1 for  blog1', async () => {
     const res = await request(app.getHttpServer())
       .post(`/sa/blogs/${idBlog1}/posts`)
       .set('Authorization', `Basic ${loginPasswordBasic64}`)
@@ -157,235 +157,79 @@ describe('tests for andpoint blog', () => {
         content: 'saContentPost1',
       })
       .expect(201);
-    console.log('test');
-    console.log(res.body);
-    console.log('test');
-  });
 
-  /*  it('create post1', async () => {
-      const res = await request(app.getHttpServer())
-        .post('/posts')
-        .set('Authorization', `Basic ${loginPasswordBasic64}`)
-        .send({
-          title: 'titlePost1',
-          shortDescription: 'shortDescriptionPost1',
-          content: 'contentPost1',
-          blogId: idBlog1,
-        })
-        .expect(201);
-  
-      //console.log(res.body);
-      idPost = res.body.id;
-      /!*  console.log('$$$$$$$$$$$$$$');
-        console.log(idPost);
-        console.log('$$$$$$$$$$$$$$');*!/
-    });*/
-  /*
-    it('create post2', async () => {
-      const res = await request(app.getHttpServer())
-        .post('/posts')
-        .set('Authorization', `Basic ${loginPasswordBasic64}`)
-        .send({
-          title: 'titlePost2',
-          shortDescription: 'shortDescriptionPost2',
-          content: 'contentPost2',
-          blogId: idBlog1,
-        })
-        .expect(201);
-  
-      //console.log(res.body);
-  
-      //idPost = res.body.id;
-    });*/
-
-  /*  it('create post3', async () => {
-      const res = await request(app.getHttpServer())
-        .post('/posts')
-        .set('Authorization', `Basic ${loginPasswordBasic64}`)
-        .send({
-          title: 'titlePost3',
-          shortDescription: 'shortDescriptionPost3',
-          content: 'contentPost3',
-          blogId: idBlog1,
-        })
-        .expect(201);
-  
-      //console.log(res.body);
-  
-      //idPost = res.body.id;
-    });*/
-  /*  it('create post3', async () => {
-      const res = await request(app.getHttpServer())
-        .post('/posts')
-        .set('Authorization', `Basic ${loginPasswordBasic64}`)
-        .send({
-          title: 'titlePost3',
-          shortDescription: 'shortDescriptionPost3',
-          content: 'contentPost3',
-          blogId: idBlog2,
-        })
-        .expect(201);
-  
-      //console.log(res.body);
-  
-      //idPost = res.body.id;
-    });*/
-
-  /*  it('get all  posts', async () => {
-      const res = await request(app.getHttpServer())
-        .get('/posts')
-        .set('Authorization', `Basic ${loginPasswordBasic64}`)
-  
-        .expect(200);
-  
-      //console.log(res.body);
-    });*/
-
-  /*  it('get   posts by postId', async () => {
-      const res = await request(app.getHttpServer())
-        .get(`/posts/${idPost}`)
-        .set('Authorization', `Basic ${loginPasswordBasic64}`)
-  
-        .expect(200);
-  
-      //console.log(res.body);
-    });*/
-
-  /*  it('get all  posts for correct blog', async () => {
-      const res = await request(app.getHttpServer())
-        .get(`/blogs/${idBlog1}/posts`)
-        .set('Authorization', `Basic ${loginPasswordBasic64}`)
-  
-        .expect(200);
-  
-      console.log(res.body);
-    });*/
-
-  /* it('update   blog by id', async () => {
-     const res = await request(app.getHttpServer())
-       .put(`/sa/blogs/${idBlogForUpdate}`)
-       .set('Authorization', `Basic ${loginPasswordBasic64}`)
-       .send({
-         name: 'nameUpdate',
-         description: 'descripUpdate',
-         websiteUrl: 'https://www.outueUpd.com/',
-       })
-       .expect(204);
-     //console.log(res.body);
-   });*/
-
-  /* it('delete   blog by id', async () => {
-     const res = await request(app.getHttpServer())
-       .delete(`/sa/blogs/${idBlogForUpdate}`)
-       .set('Authorization', `Basic ${loginPasswordBasic64}`)
- 
-       .expect(204);
-     //console.log(res.body);
-   });*/
-
-  /* it('get  blog by id', async () => {
-     const res = await request(app.getHttpServer())
-       .get(`/blogs/${idBlog}`)
- 
-       .expect(200);
-     //console.log(res.body);
-   });*/
-
-  /* it('get all  blogs andpoint SaBlogs', async () => {
-     const res = await request(app.getHttpServer())
-       .get('/sa/blogs')
- 
-       .expect(200);
-     //console.log(res.body);
-   });*/
-
-  /* it('get all  blogs andpoint Blogs ', async () => {
-     const res = await request(app.getHttpServer())
-       .get('/blogs')
- 
-       .expect(200);
-     //console.log(res.body);
-   });*/
-
-  /* it('create post', async () => {
-     const res = await request(app.getHttpServer())
-       .post(`/sa/blogs/${idBlog1}/posts`)
-       .set('Authorization', `Basic ${loginPasswordBasic64}`)
-       .send({
-         title: 'titlePost223',
-         shortDescription: 'shortDescriptionPost223',
-         content: 'contentPost223',
-       })
-       .expect(201);
- 
-     //console.log(res.body);
-   });*/
-
-  /* it('create post', async () => {
-     const res = await request(app.getHttpServer())
-       .post(`/sa/blogs/${idBlog1}/posts`)
-       .set('Authorization', `Basic ${loginPasswordBasic64}`)
-       .send({
-         title: 'titlePost224',
-         shortDescription: 'shortDescriptionPost224',
-         content: 'contentPost224',
-       })
-       .expect(201);
- 
-     //console.log(res.body);
-   });*/
-
-  /*it('update  post', async () => {
-    const res = await request(app.getHttpServer())
-      .put(`/sa/blogs/${idBlog}/posts/${idPost}`)
-      .set('Authorization', `Basic ${loginPasswordBasic64}`)
-      .send({
-        title: 'titlePUpdate',
-        shortDescription: 'shortDescripUpdate',
-        content: 'contentPUpdate',
-      })
-      .expect(204);
+    idPost1 = res.body.id;
 
     //console.log(res.body);
-  });*/
+  });
+  it('create post2 for  blog1', async () => {
+    const res = await request(app.getHttpServer())
+      .post(`/sa/blogs/${idBlog1}/posts`)
+      .set('Authorization', `Basic ${loginPasswordBasic64}`)
+      .send({
+        title: 'saTitlePost2',
+        shortDescription: 'saShortDescriptionPost2',
+        content: 'saContentPost2',
+      })
+      .expect(201);
 
-  /* it('delete  post', async () => {
-     const res = await request(app.getHttpServer())
-       .delete(`/sa/blogs/${idBlog}/posts/${idPost}`)
-       .set('Authorization', `Basic ${loginPasswordBasic64}`)
- 
-       .expect(204);
- 
-     //console.log(res.body);
-   });*/
+    //console.log(res.body);
+  });
 
-  /* it('get all  posts', async () => {
-     const res = await request(app.getHttpServer())
-       .get('/posts')
-       .set('Authorization', `Basic ${loginPasswordBasic64}`)
- 
-       .expect(200);
- 
-     //console.log(res.body);
-   });*/
+  it('create post1 for  blog2', async () => {
+    const res = await request(app.getHttpServer())
+      .post(`/sa/blogs/${idBlog2}/posts`)
+      .set('Authorization', `Basic ${loginPasswordBasic64}`)
+      .send({
+        title: 'saTitlePost122',
+        shortDescription: 'saShortDescriptionPost122',
+        content: 'saContentPost122',
+      })
+      .expect(201);
 
-  /* it('get all  posts for correct blog', async () => {
-     const res = await request(app.getHttpServer())
-       .get(`/blogs/${idBlog1}/posts`)
-       .set('Authorization', `Basic ${loginPasswordBasic64}`)
- 
-       .expect(200);
- 
-     //console.log(res.body);
-   });*/
+    //console.log(res.body);
+  });
+  it('create post2 for  blog2', async () => {
+    const res = await request(app.getHttpServer())
+      .post(`/sa/blogs/${idBlog2}/posts`)
+      .set('Authorization', `Basic ${loginPasswordBasic64}`)
+      .send({
+        title: 'saTitlePost222',
+        shortDescription: 'saShortDescriptionPost222',
+        content: 'saContentPost222',
+      })
+      .expect(201);
 
-  /* it('get all  posts for correct blog', async () => {
-     const res = await request(app.getHttpServer())
-       .get(`/sa/blogs/${idBlog}/posts`)
-       .set('Authorization', `Basic ${loginPasswordBasic64}`)
- 
-       .expect(200);
- 
-     //console.log(res.body);
-   });*/
+    //console.log(res.body);
+  });
+
+  it('get  all posts for blog1 ', async () => {
+    const res = await request(app.getHttpServer())
+      .get(`/sa/blogs/${idBlog1}/posts`)
+      .set('Authorization', `Basic ${loginPasswordBasic64}`)
+      .expect(200);
+    console.log(res.body);
+  });
+
+  it('update   post  by id', async () => {
+    const res = await request(app.getHttpServer())
+      .put(`/sa/blogs/${idBlog1}/posts/${idPost1}`)
+      .set('Authorization', `Basic ${loginPasswordBasic64}`)
+      .send({
+        title: 'saTitlePost222Update',
+        shortDescription: 'saShortDescriptionPost222Update',
+        content: 'saContentPost222Update',
+      })
+      .expect(204);
+    //console.log(res.body);
+  });
+
+  it('delete   post by id', async () => {
+    const res = await request(app.getHttpServer())
+      .delete(`/sa/blogs/${idBlog1}/posts/${idPost1}`)
+      .set('Authorization', `Basic ${loginPasswordBasic64}`)
+
+      .expect(204);
+    //console.log(res.body);
+  });
 });
