@@ -52,15 +52,6 @@ export class PostsController {
     }
 
     return postId;
-
-    /*    const post: PostWithLikesInfo | null =
-          await this.postQuerySqlRepository.getPostById(postId);
-    
-        if (post) {
-          return post;
-        } else {
-          throw new NotFoundException('Cannot create post- :method-post,url-posts');
-        }*/
   }
 
   @UseGuards(DataUserExtractorFromTokenGuard)
@@ -85,21 +76,21 @@ export class PostsController {
     return posts;
   }
 
-  //@UseGuards(DataUserExtractorFromTokenGuard)
+  @UseGuards(DataUserExtractorFromTokenGuard)
   @Get(':id')
   async getPostByPostId(
     @Param('id') postId: string,
-    //@Req() request: Request,
+    @Req() request: Request,
   ): Promise<PostWithLikesInfo | null> {
     /*Айдишка пользователя нужна для-- когда
 отдадим ответ в нем дудет информация
 о том какой статус учтановил данный пользователь
 который этот запрос делает */
 
-    //const userId: string | null = request['userId'];
+    const userId: string | null = request['userId'];
 
     const post: PostWithLikesInfo | null =
-      await this.postQuerySqlTypeormRepository.getPostByPostId(postId);
+      await this.postQuerySqlTypeormRepository.getPostByPostId(postId, userId);
 
     if (post) {
       return post;

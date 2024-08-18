@@ -153,7 +153,10 @@ pagesCount это число
     };
   }
 
-  async getPostByPostId(postId: string) {
+  async getPostByPostId(postId: string, userId: string | null) {
+    /*  найду одну запись post по айдишке
+     И ПЛЮС НАДО  result.blogtyp.id */
+
     const result: Posttyp | null = await this.posttypRepository
       .createQueryBuilder('p')
       .leftJoinAndSelect('p.blogtyp', 'b')
@@ -162,21 +165,32 @@ pagesCount это число
 
     if (!result) return null;
 
-    return {
-      id: result.id,
-      title: result.title,
-      shortDescription: result.shortDescription,
-      content: result.content,
-      blogId: result.blogtyp.id,
-      blogName: result.blogName,
-      createdAt: result.createdAt,
-      extendedLikesInfo: {
-        likesCount: 0,
-        dislikesCount: 0,
-        myStatus: LikeStatus.NONE,
-        newestLikes: [],
-      },
-    };
+    /* найду все записи из таблицы LikeStatusForPostTyp
+    для текущего поста по postId
+    ------сортировку по полю addedAt
+    -------- сортировка в убывающем порядке , это означает, что самая
+    первая запись будет самой новой записью*/
+
+    const arrayLikeStatusForPostTypByPostId: LikeStatusForPostTyp[] =
+      await this.likeForPostTypRepository
+        .createQueryBuilder('plike')
+        .leftJoin('plike.posttyp', 'posttyp')
+        .where('plike.posttyp.id = :postId', { postId })
+        .orderBy('plike.addedAt', 'DESC')
+        .getMany();
+
+    /*в arrayLikeStatusForPostTypByPostId будет  массив --- если не найдет запись ,
+ тогда ПУСТОЙ МАССИВ,   если найдет запись
+ тогда в массиве будетут  обьекты */
+
+    const viewModelOnePostWithLikeInfo: PostWithLikesInfo =
+      this.createViewModelOnePostWithLikeInfo(
+        userId,
+        result,
+        arrayLikeStatusForPostTypByPostId,
+      );
+
+    return viewModelOnePostWithLikeInfo;
   }
 
   async createViewArrayPosts(userId: string | null, arrayPosts: Posttyp[]) {
