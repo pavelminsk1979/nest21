@@ -1,3 +1,5 @@
+import { Posttyp } from '../../../posts/domains/posttyp.entity';
+
 export type CreateComment = {
   content: string;
   postId: string;
@@ -13,4 +15,12 @@ export type CreateCommentWithId = {
   createdAt: string;
   userId: string;
   userLogin: string;
+};
+
+export type CreateCommentTyp = {
+  content: string;
+  createdAt: string;
+  userId: string;
+  userLogin: string;
+  posttyp: Posttyp;
 };

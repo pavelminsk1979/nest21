@@ -2,21 +2,22 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Comment, CommentDocument } from '../domaims/domain-comment';
-import { CommentRepository } from '../reposetories/comment-repository';
 import { LikeStatus } from '../../../common/types';
 import {
   LikeStatusForComment,
   LikeStatusForCommentDocument,
 } from '../../like-status-for-comment/domain/domain-like-status-for-comment';
-import { PostSqlRepository } from '../../posts/repositories/post-sql-repository';
-import { UsersSqlRepository } from '../../users/repositories/user-sql-repository';
-import { CreateComment } from '../api/types/dto';
+import { CreateCommentTyp } from '../api/types/dto';
 import { CommentSqlRepository } from '../reposetories/comment-sql-repository';
 import {
   LikeStatusForCommentCreate,
   LikeStatusForCommentCreateWithId,
 } from '../../like-status-for-comment/types/dto';
 import { LikeStatusForCommentSqlRepository } from '../../like-status-for-comment/repositories/like-status-for-comment-sql-repository';
+import { PostSqlTypeormRepository } from '../../posts/repositories/post-sql-typeorm-repository';
+import { UserSqlTypeormRepository } from '../../users/repositories/user-sql-typeorm-repository';
+import { Commenttyp } from '../domaims/commenttyp.entity';
+import { CommentSqlTypeormRepository } from '../reposetories/comment-sql-typeorm-repository';
 
 @Injectable()
 /*@Injectable()-декоратор что данный клас
@@ -28,43 +29,43 @@ import { LikeStatusForCommentSqlRepository } from '../../like-status-for-comment
  возможно внедрить как зависимость*/
 export class CommentService {
   constructor(
-    protected commentRepository: CommentRepository,
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
     @InjectModel(LikeStatusForComment.name)
     private likeStatusModelForComment: Model<LikeStatusForCommentDocument>,
-    protected postSqlRepository: PostSqlRepository,
-    protected usersSqlRepository: UsersSqlRepository,
     protected commentSqlRepository: CommentSqlRepository,
     protected likeStatusForCommentSqlRepository: LikeStatusForCommentSqlRepository,
+    protected postSqlTypeormRepository: PostSqlTypeormRepository,
+    protected userSqlTypeormRepository: UserSqlTypeormRepository,
+    protected commentSqlTypeormRepository: CommentSqlTypeormRepository,
   ) {}
 
   async createComment(userId: string, postId: string, content: string) {
     /*надо проверить существует ли такой
     документ-post в базе */
 
-    const post = await this.postSqlRepository.getPost(postId);
+    const post = await this.postSqlTypeormRepository.getPostById(postId);
 
     if (!post) return null;
 
     /* надо достать документ user по userId
     и из него взять userLogin*/
 
-    const user = await this.usersSqlRepository.getUserById(userId);
+    const user = await this.userSqlTypeormRepository.getUserById(userId);
 
     if (!user) return null;
 
     const userLogin = user.login;
 
-    const newComment: CreateComment = {
+    const newComment: CreateCommentTyp = {
       content,
       createdAt: new Date().toISOString(),
-      postId,
       userId,
       userLogin,
+      posttyp: post,
     };
 
     const commentId: string | null =
-      await this.commentSqlRepository.createComment(newComment);
+      await this.commentSqlTypeormRepository.createComment(newComment);
 
     if (!commentId) return null;
 

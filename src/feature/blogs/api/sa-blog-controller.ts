@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ViewBlog } from './types/views';
@@ -23,11 +24,11 @@ import { CreateBlogCommand } from '../services/create-blog-service';
 import { AuthGuard } from '../../../common/guard/auth-guard';
 import { QueryParamsInputModel } from '../../../common/pipes/query-params-input-model';
 import { BlogQuerySqlRepository } from '../repositories/blog-query-sql-repository';
-import { PostQuerySqlRepository } from '../../posts/repositories/post-query-sql-repository';
 import { UpdatePostForCorrectBlogInputModel } from '../../posts/api/pipes/update-post-for-correct-blog-input-model';
 import { PostService } from '../../posts/services/post-service';
 import { BlogQuerySqlTypeormRepository } from '../repositories/blog-query-sql-typeorm-repository';
 import { PostQuerySqlTypeormRepository } from '../../posts/repositories/post-query-sql-typeorm-repository';
+import { DataUserExtractorFromTokenGuard } from '../../../common/guard/data-user-extractor-from-token-guard';
 
 @Controller('sa/blogs')
 export class SaBlogController {
@@ -133,20 +134,20 @@ export class SaBlogController {
     }
   }
 
-  //@UseGuards(AuthGuard, DataUserExtractorFromTokenGuard)
+  @UseGuards(AuthGuard, DataUserExtractorFromTokenGuard)
   @UseGuards(AuthGuard)
   @Post(':blogId/posts')
   async createPostFortBlog(
     @Param('blogId') blogId: string,
     @Body() createPostForBlogInputModel: CreatePostForBlogInputModel,
-    // @Req() request: Request,
+    @Req() request: Request,
   ) {
     /* чтобы переиспользовать в этом обработчике метод
  getPostById  ему нужна (userId)- она будет 
  в данном случае null но главное что удовлетворяю
  метод значением-userId*/
 
-    // const userId: string | null = request['userId'];
+    const userId: string | null = request['userId'];
 
     /* создать новый пост ДЛЯ КОНКРЕТНОГО БЛОГА и вернут
      данные этого поста и также структуру 
@@ -164,8 +165,10 @@ export class SaBlogController {
       );
     }
 
-    const post =
-      await this.postQuerySqlTypeormRepository.getPostByPostId(postId);
+    const post = await this.postQuerySqlTypeormRepository.getPostByPostId(
+      postId,
+      userId,
+    );
 
     if (post) {
       return post;

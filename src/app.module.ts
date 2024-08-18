@@ -91,6 +91,9 @@ import { PostSqlTypeormRepository } from './feature/posts/repositories/post-sql-
 import { PostQuerySqlTypeormRepository } from './feature/posts/repositories/post-query-sql-typeorm-repository';
 import { LikeStatusForPostTyp } from './feature/like-status-for-post/domain/typ-like-status-for-post.entity';
 import { LikeStatusForPostSqlTypeormRepository } from './feature/like-status-for-post/repositories/like-status-for-post-sql-typeorm-repository';
+import { Commenttyp } from './feature/comments/domaims/commenttyp.entity';
+import { CommentSqlTypeormRepository } from './feature/comments/reposetories/comment-sql-typeorm-repository';
+import { CommentQuerySqlTypeormRepository } from './feature/comments/reposetories/comment-query-sql-typeorm-repository';
 
 dotenv.config();
 
@@ -138,6 +141,7 @@ dotenv.config();
       Blogtyp,
       Posttyp,
       LikeStatusForPostTyp,
+      Commenttyp,
     ]),
 
     /*    --------type: 'postgres',    определяет  базу данных
@@ -356,6 +360,8 @@ dotenv.config();
     PostSqlTypeormRepository,
     PostQuerySqlTypeormRepository,
     LikeStatusForPostSqlTypeormRepository,
+    CommentSqlTypeormRepository,
+    CommentQuerySqlTypeormRepository,
   ],
 })
 /*export class AppModule {} в данном контексте

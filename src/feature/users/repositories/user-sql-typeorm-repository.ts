@@ -11,19 +11,6 @@ export class UserSqlTypeormRepository {
     private readonly usertypRepository: Repository<Usertyp>,
   ) {}
 
-  /* 
-   async findAllUsers() {
-     return this.usertypRepository.find();
-   }
- 
-   async findById(userId: string) {
-     return this.usertypRepository.find({ id: userId });
-   }
- 
-   async deleteById(userId: string) {
-     return this.usertypRepository.delete({ id: userId });
-   }*/
-
   async createNewUser(newUser: CreateUser) {
     const user = new Usertyp();
     user.createdAt = newUser.createdAt;

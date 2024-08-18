@@ -2,11 +2,9 @@ import { Model } from 'mongoose';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../domains/domain-user';
-import { UsersRepository } from '../repositories/user-repository';
 import { CreateUserInputModel } from '../api/pipes/create-user-input-model';
 import { HashPasswordService } from '../../../common/service/hash-password-service';
 import { v4 as randomCode } from 'uuid';
-import { UsersSqlRepository } from '../repositories/user-sql-repository';
 import { CreateUser } from '../api/types/dto';
 import { UserSqlTypeormRepository } from '../repositories/user-sql-typeorm-repository';
 import { Usertyp } from '../domains/usertyp.entity';
@@ -31,9 +29,7 @@ export class UsersService {
        ---userModel - это  свойство текущего класса ,
        это будет ТОЖЕ КЛАСС-это и есть Моделька от mongoose.*/
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    protected usersRepository: UsersRepository,
     protected hashPasswordService: HashPasswordService,
-    protected usersSqlRepository: UsersSqlRepository,
     protected userSqlTypeormRepository: UserSqlTypeormRepository,
   ) {}
 

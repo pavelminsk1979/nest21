@@ -27,6 +27,7 @@ import { DataUserExtractorFromTokenGuard } from '../../../common/guard/data-user
 import { CommentQuerySqlRepository } from '../../comments/reposetories/comment-query-sql-repository';
 import { CreatePostInputModel } from './pipes/create-post-input-model';
 import { PostQuerySqlTypeormRepository } from '../repositories/post-query-sql-typeorm-repository';
+import { CommentQuerySqlTypeormRepository } from '../../comments/reposetories/comment-query-sql-typeorm-repository';
 
 @Controller('posts')
 export class PostsController {
@@ -35,6 +36,7 @@ export class PostsController {
     protected commentService: CommentService,
     protected commentQuerySqlRepository: CommentQuerySqlRepository,
     protected postQuerySqlTypeormRepository: PostQuerySqlTypeormRepository,
+    protected commentQuerySqlTypeormRepository: CommentQuerySqlTypeormRepository,
   ) {}
 
   @UseGuards(AuthGuard)
@@ -98,27 +100,6 @@ export class PostsController {
       throw new NotFoundException('post not found:method-get,url /posts/id');
     }
   }
-
-  /*  @UseGuards(AuthGuard)
-    @HttpCode(HttpStatus.NO_CONTENT)
-    @Put(':id')
-    async updateBlog(
-      @Param('id') postId: string,
-      @Body() updatePostInputModel: UpdatePostInputModel,
-    ) {
-      const isUpdatePost: boolean = await this.postService.updatePost(
-        postId,
-        updatePostInputModel,
-      );
-  
-      if (isUpdatePost) {
-        return;
-      } else {
-        throw new NotFoundException(
-          'post not update:andpoint-put ,url /posts/id',
-        );
-      }
-    }*/
 
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -187,7 +168,7 @@ export class PostsController {
 
     const userId = request['userId'];
 
-    //cоздаю в базе документ КОМЕНТ
+    //cоздаю в базе таблицу  КОМЕНТ
 
     const commentId: string | null = await this.commentService.createComment(
       userId,
@@ -206,7 +187,7 @@ export class PostsController {
 
      ---userId  чтоб вернуть статус установленый этим юзером*/
 
-    const comment = await this.commentQuerySqlRepository.getCommentById(
+    const comment = await this.commentQuerySqlTypeormRepository.getCommentById(
       userId,
       commentId,
     );
