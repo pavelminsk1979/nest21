@@ -72,4 +72,14 @@ export class TypLikeStatusForCommentSqlRepository {
     if (result.affected === 0) return false;
     return true;
   }
+
+  async findLikeCommentsForCorrectComment(commentId: string) {
+    const result = await this.likeForCommentTypRepository
+      .createQueryBuilder('likeCommentTyp')
+      .leftJoinAndSelect('likeCommentTyp.commenttyp', 'commenttyp')
+      .where('commenttyp.id = :commentId', { commentId })
+      .getMany();
+
+    return result;
+  }
 }

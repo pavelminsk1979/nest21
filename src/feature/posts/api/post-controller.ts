@@ -24,7 +24,6 @@ import { CommentService } from '../../comments/services/comment-service';
 import { Request } from 'express';
 import { SetLikeStatusForPostInputModel } from './pipes/set-like-status-input-model';
 import { DataUserExtractorFromTokenGuard } from '../../../common/guard/data-user-extractor-from-token-guard';
-import { CommentQuerySqlRepository } from '../../comments/reposetories/comment-query-sql-repository';
 import { CreatePostInputModel } from './pipes/create-post-input-model';
 import { PostQuerySqlTypeormRepository } from '../repositories/post-query-sql-typeorm-repository';
 import { CommentQuerySqlTypeormRepository } from '../../comments/reposetories/comment-query-sql-typeorm-repository';
@@ -34,7 +33,6 @@ export class PostsController {
   constructor(
     protected postService: PostService,
     protected commentService: CommentService,
-    protected commentQuerySqlRepository: CommentQuerySqlRepository,
     protected postQuerySqlTypeormRepository: PostQuerySqlTypeormRepository,
     protected commentQuerySqlTypeormRepository: CommentQuerySqlTypeormRepository,
   ) {}
@@ -135,7 +133,7 @@ export class PostsController {
     //к этому коментарию
 
     const comments: ViewArrayComments | null =
-      await this.commentQuerySqlRepository.getComments(
+      await this.commentQuerySqlTypeormRepository.getComments(
         userId,
         postId,
         queryCommentsForPost,

@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateComment, CreateCommentTyp } from '../api/types/dto';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
-import { Usertyp } from '../../users/domains/usertyp.entity';
+import { CreateCommentTyp } from '../api/types/dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Commenttyp } from '../domaims/commenttyp.entity';
-import { Posttyp } from '../../posts/domains/posttyp.entity';
 
 @Injectable()
 /*@Injectable()-декоратор что данный клас инжектируемый
@@ -41,5 +39,35 @@ export class CommentSqlTypeormRepository {
       .getOne();
 
     return result;
+  }
+
+  async changeComment(commentId: string, content: string) {
+    const result = await this.commenttypRepository
+      .createQueryBuilder()
+      .update(Commenttyp)
+      .set({ content })
+      .where('id = :commentId', { commentId })
+      .execute();
+
+    /* result это вот такая структура
+   UpdateResult { generatedMaps: [], raw: [], affected: 0 }
+    affected-- это количество измененных саписей
+  */
+
+    if (result.affected === 0) return false;
+    return true;
+  }
+
+  async deleteCommentById(commentId: string) {
+    const result = await this.commenttypRepository
+      .createQueryBuilder()
+      .delete()
+      .where('id = :commentId', { commentId })
+      .execute();
+
+    /*affected указывает на количество удаленных записей */
+
+    if (result.affected === 0) return false;
+    return true;
   }
 }

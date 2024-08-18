@@ -11,21 +11,19 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { CommentQueryRepository } from '../reposetories/comment-query-repository';
 import { AuthTokenGuard } from '../../../common/guard/auth-token-guard';
 import { UpdateCorrectCommentInputModel } from './pipe/update-correct-comment';
 import { CommentService } from '../services/comment-service';
 import { Request } from 'express';
 import { SetLikeStatusForCommentInputModel } from './pipe/set-like-status-for-comment-input-model';
 import { DataUserExtractorFromTokenGuard } from '../../../common/guard/data-user-extractor-from-token-guard';
-import { CommentQuerySqlRepository } from '../reposetories/comment-query-sql-repository';
+import { CommentQuerySqlTypeormRepository } from '../reposetories/comment-query-sql-typeorm-repository';
 
 @Controller('comments')
 export class CommentController {
   constructor(
-    protected commentQueryRepository: CommentQueryRepository,
     protected commentService: CommentService,
-    protected commentQuerySqlRepository: CommentQuerySqlRepository,
+    protected commentQuerySqlTypeormRepository: CommentQuerySqlTypeormRepository,
   ) {}
 
   @UseGuards(DataUserExtractorFromTokenGuard)
@@ -44,7 +42,7 @@ export class CommentController {
     //вернуть один  коментарий по айдишке
     //и у него будут данные о лайках
 
-    const comment = await this.commentQuerySqlRepository.getCommentById(
+    const comment = await this.commentQuerySqlTypeormRepository.getCommentById(
       userId,
       commentId,
     );

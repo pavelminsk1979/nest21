@@ -10,7 +10,6 @@ import {
   LikeStatusForPostDocument,
 } from '../../like-status-for-post/domain/domain-like-status-for-post';
 import { UpdatePostForCorrectBlogInputModel } from '../api/pipes/update-post-for-correct-blog-input-model';
-import { LikeStatusForPostSqlRepository } from '../../like-status-for-post/repositories/like-status-for-post-sql-repository';
 import { Blogtyp } from '../../blogs/domains/blogtyp.entity';
 import { BlogSqlTypeormRepository } from '../../blogs/repositories/blog-sql-typeorm-repository';
 import { PostSqlTypeormRepository } from '../repositories/post-sql-typeorm-repository';
@@ -33,7 +32,6 @@ export class PostService {
     protected postRepository: PostRepository,
     @InjectModel(LikeStatusForPost.name)
     protected likeStatusModelForPost: Model<LikeStatusForPostDocument>,
-    protected likeStatusForPostSqlRepository: LikeStatusForPostSqlRepository,
     protected blogSqlTypeormRepository: BlogSqlTypeormRepository,
     protected postSqlTypeormRepository: PostSqlTypeormRepository,
     protected likeStatusForPostSqlTypeormRepository: LikeStatusForPostSqlTypeormRepository,

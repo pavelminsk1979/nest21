@@ -75,7 +75,8 @@ export class CommentService {
   async updateComment(userId: string, commentId: string, content: string) {
     //нахожу коментарий в базе данных
 
-    const comment = await this.commentSqlRepository.findCommentById(commentId);
+    const comment =
+      await this.commentSqlTypeormRepository.getCommentById(commentId);
 
     if (!comment) return false;
 
@@ -88,19 +89,15 @@ export class CommentService {
       );
     }
 
-    /*изменяю в документе comment содержимое
-поля comment*/
-    const newContent = content;
-
-    const idComment = comment.id;
-
-    //сохраняю в базу измененный документ
-
-    return await this.commentSqlRepository.changeComment(idComment, newContent);
+    return await this.commentSqlTypeormRepository.changeComment(
+      commentId,
+      content,
+    );
   }
 
   async deleteCommentById(userId: string, commentId: string) {
-    const comment = await this.commentSqlRepository.findCommentById(commentId);
+    const comment =
+      await this.commentSqlTypeormRepository.getCommentById(commentId);
 
     if (!comment) return null;
 
@@ -113,7 +110,7 @@ export class CommentService {
       );
     }
 
-    return this.commentSqlRepository.deleteCommentById(commentId);
+    return this.commentSqlTypeormRepository.deleteCommentById(commentId);
   }
 
   async setLikestatusForComment(
