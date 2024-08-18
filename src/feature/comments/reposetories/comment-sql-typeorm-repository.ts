@@ -32,28 +32,14 @@ export class CommentSqlTypeormRepository {
 
     /*вернется айдишка нового поста */
     return result.raw[0].id;
+  }
 
-    /*    const result = await this.dataSource.query(
-          `
-        
-        INSERT INTO public.comment(
-     content, "postId", "createdAt", "userId", "userLogin")
-    VALUES ( $1,$2,$3,$4,$5)
-      RETURNING id;  
-        `,
-          [
-            newComment.content,
-            newComment.postId,
-            newComment.createdAt,
-            newComment.userId,
-            newComment.userLogin,
-          ],
-        );
-    
-        /!*вернётся массив и в массиве одно значение
-       это будет обьект, и у этого обьекта будет ключ id,
-       или null если юзер не будет создан *!/
-        if (!result) return null;
-        return result[0].id;*/
+  async getCommentById(commentId: string) {
+    const result = await this.commenttypRepository
+      .createQueryBuilder('com')
+      .where('com.id = :commentId', { commentId })
+      .getOne();
+
+    return result;
   }
 }

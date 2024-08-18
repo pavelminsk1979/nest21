@@ -11,7 +11,6 @@ import { DataSource, Repository } from 'typeorm';
 
 import { LikeStatusForCommentSqlRepository } from '../../like-status-for-comment/repositories/like-status-for-comment-sql-repository';
 import { LikeStatusForCommentCreateWithId } from '../../like-status-for-comment/types/dto';
-import { CreateCommentWithId } from '../api/types/dto';
 import { PostSqlRepository } from '../../posts/repositories/post-sql-repository';
 import { Commenttyp } from '../domaims/commenttyp.entity';
 

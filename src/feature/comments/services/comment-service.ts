@@ -16,8 +16,8 @@ import {
 import { LikeStatusForCommentSqlRepository } from '../../like-status-for-comment/repositories/like-status-for-comment-sql-repository';
 import { PostSqlTypeormRepository } from '../../posts/repositories/post-sql-typeorm-repository';
 import { UserSqlTypeormRepository } from '../../users/repositories/user-sql-typeorm-repository';
-import { Commenttyp } from '../domaims/commenttyp.entity';
 import { CommentSqlTypeormRepository } from '../reposetories/comment-sql-typeorm-repository';
+import { Commenttyp } from '../domaims/commenttyp.entity';
 
 @Injectable()
 /*@Injectable()-декоратор что данный клас
@@ -123,11 +123,14 @@ export class CommentService {
   ) {
     /* проверка- существует ли в базе такой коментарий*/
 
-    const comment = await this.commentSqlRepository.findCommentById(commentId);
+    const comment: Commenttyp | null =
+      await this.commentSqlTypeormRepository.getCommentById(commentId);
 
     if (!comment) return false;
 
-    /*    ищу в базе ЛайковДляКоментариев  один документ   по  двум полям userId и commentId---*/
+    /*   
+     СОЗДАТЬ ТАБЛИЦУ ДЛЯ ЛАЙКОВКОМЕНТАРИЕВ
+     ищу в базе ЛайковДляКоментариев  один документ   по  двум полям userId и commentId---*/
 
     const likeComment: LikeStatusForCommentCreateWithId | null =
       await this.likeStatusForCommentSqlRepository.findLikeCommentByUserIdAndCommentId(

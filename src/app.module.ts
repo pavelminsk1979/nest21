@@ -94,6 +94,7 @@ import { LikeStatusForPostSqlTypeormRepository } from './feature/like-status-for
 import { Commenttyp } from './feature/comments/domaims/commenttyp.entity';
 import { CommentSqlTypeormRepository } from './feature/comments/reposetories/comment-sql-typeorm-repository';
 import { CommentQuerySqlTypeormRepository } from './feature/comments/reposetories/comment-query-sql-typeorm-repository';
+import { LikeStatusForCommentTyp } from './feature/like-status-for-comment/domain/typ-like-status-for-comment.entity';
 
 dotenv.config();
 
@@ -142,6 +143,7 @@ dotenv.config();
       Posttyp,
       LikeStatusForPostTyp,
       Commenttyp,
+      LikeStatusForCommentTyp,
     ]),
 
     /*    --------type: 'postgres',    определяет  базу данных
