@@ -192,6 +192,7 @@ if (sortDirection === 'asc') {
     const result: [Commenttyp[], number] = await this.commenttypormRepository
       .createQueryBuilder('com')
       .leftJoinAndSelect('com.posttyp', 'p')
+      .where('p.id = :postId', { postId })
       .orderBy(`com.${sortBy}`, sortDir)
       .skip(amountSkip)
       .take(pageSize)
