@@ -24,7 +24,6 @@ import { CommentService } from '../../comments/services/comment-service';
 import { Request } from 'express';
 import { SetLikeStatusForPostInputModel } from './pipes/set-like-status-input-model';
 import { DataUserExtractorFromTokenGuard } from '../../../common/guard/data-user-extractor-from-token-guard';
-import { PostQuerySqlRepository } from '../repositories/post-query-sql-repository';
 import { CommentQuerySqlRepository } from '../../comments/reposetories/comment-query-sql-repository';
 import { CreatePostInputModel } from './pipes/create-post-input-model';
 import { PostQuerySqlTypeormRepository } from '../repositories/post-query-sql-typeorm-repository';
@@ -34,7 +33,6 @@ export class PostsController {
   constructor(
     protected postService: PostService,
     protected commentService: CommentService,
-    protected postQuerySqlRepository: PostQuerySqlRepository,
     protected commentQuerySqlRepository: CommentQuerySqlRepository,
     protected postQuerySqlTypeormRepository: PostQuerySqlTypeormRepository,
   ) {}
@@ -65,21 +63,22 @@ export class PostsController {
         }*/
   }
 
-  //@UseGuards(DataUserExtractorFromTokenGuard)
+  @UseGuards(DataUserExtractorFromTokenGuard)
   @Get()
   async getPosts(
     @Query() queryParamsPostInputModel: QueryParamsInputModel,
-    //@Req() request: Request,
+    @Req() request: Request,
   ): Promise<ViewModelWithArrayPosts> {
     /*Айдишка пользователя нужна для-- когда
  отдадим ответ в нем будет информация
- о том какой статус учтановил данный пользователь
+ о том какой статус уcтановил данный пользователь
  который этот запрос делает */
 
-    //const userId: string | null = request['userId'];
+    const userId: string | null = request['userId'];
 
     const posts: ViewModelWithArrayPosts =
       await this.postQuerySqlTypeormRepository.getPosts(
+        userId,
         queryParamsPostInputModel,
       );
 

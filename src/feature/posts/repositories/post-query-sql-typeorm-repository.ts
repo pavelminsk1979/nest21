@@ -7,12 +7,11 @@ import { LikeStatus } from '../../../common/types';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { NewestLikes, PostWithLikesInfo } from '../api/types/views';
-import { CreatePostWithIdAndWithNameBlog } from '../api/types/dto';
-import { LikeStatusForPostWithId } from '../../like-status-for-post/types/dto';
 import { SortDir } from '../../blogs/api/types/dto';
 import { Posttyp } from '../domains/posttyp.entity';
 import { BlogSqlTypeormRepository } from '../../blogs/repositories/blog-sql-typeorm-repository';
 import { Blogtyp } from '../../blogs/domains/blogtyp.entity';
+import { LikeStatusForPostTyp } from '../../like-status-for-post/domain/typ-like-status-for-post.entity';
 
 @Injectable()
 /*@Injectable()-декоратор что данный клас
@@ -29,11 +28,13 @@ export class PostQuerySqlTypeormRepository {
     @InjectRepository(Posttyp)
     private readonly posttypRepository: Repository<Posttyp>,
     protected blogSqlTypeormRepository: BlogSqlTypeormRepository,
+    @InjectRepository(LikeStatusForPostTyp)
+    private readonly likeForPostTypRepository: Repository<LikeStatusForPostTyp>,
   ) {}
 
   async getPosts(
+    userId: string | null,
     queryParamsPostForBlog: QueryParamsInputModel,
-    //userId: string | null,
   ) {
     const { sortBy, sortDirection, pageNumber, pageSize } =
       queryParamsPostForBlog;
@@ -61,8 +62,7 @@ pageSize - размер  одной страницы, ПО УМОЛЧАНИЮ 10
 
 .orderBy(`b.${sortBy}`, sortDir)
 
-
-    sortDir это кастыль чтоб весь код не упал
+sortDir это кастыль чтоб весь код не упал
      * ибо менять в енамке - и много где енамка используется 
     let sortDir: SortDir;
     if (sortDirection === 'asc') {
@@ -88,8 +88,7 @@ pageSize - размер  одной страницы, ПО УМОЛЧАНИЮ 10
   лимит в 10 записей и от фронтенда просят 2-ую страницу,
   значит надо пропустить (2-1)*10 =  10 записей
 
-
-    */
+ */
 
     let sortDir: SortDir;
     if (sortDirection === 'asc') {
@@ -140,27 +139,10 @@ pagesCount это число
 
 */
 
-    //////////////////////////////////////////////////
-    //временный короткий вариант
-    ////////////////////////////////
-
-    const viewArrayPosts: PostWithLikesInfo[] = result[0].map((el: Posttyp) => {
-      return {
-        id: el.id,
-        title: el.title,
-        shortDescription: el.shortDescription,
-        content: el.content,
-        blogId: el.blogtyp.id,
-        blogName: el.blogName,
-        createdAt: el.createdAt,
-        extendedLikesInfo: {
-          likesCount: 0,
-          dislikesCount: 0,
-          myStatus: LikeStatus.NONE,
-          newestLikes: [],
-        },
-      };
-    });
+    const viewArrayPosts: PostWithLikesInfo[] = await this.createViewArrayPosts(
+      userId,
+      result[0], //Posttyp[]
+    );
 
     return {
       pagesCount,
@@ -169,22 +151,6 @@ pagesCount это число
       totalCount,
       items: viewArrayPosts,
     };
-
-    ////////////////////////////////////////////
-    ////////////////////////////////////////////
-
-    /*  const viewArrayPosts: PostWithLikesInfo[] = await this.createViewArrayPosts(
-        userId,
-        arrayPosts,
-      );
-  
-      return {
-        pagesCount,
-        page: pageNumber,
-        pageSize: pageSize,
-        totalCount,
-        items: viewArrayPosts,
-      };*/
   }
 
   async getPostByPostId(postId: string) {
@@ -213,46 +179,36 @@ pagesCount это число
     };
   }
 
-  async createViewArrayPosts(
-    userId: string | null,
-    arrayPosts: CreatePostWithIdAndWithNameBlog[],
-  ) {
+  async createViewArrayPosts(userId: string | null, arrayPosts: Posttyp[]) {
     /* из arrayPosts( массив постов)
     - достану из каждого поста  id(aйдишку поста)
     буду иметь массив айдишек */
 
-    const arrayPostId: string[] = arrayPosts.map(
-      (e: CreatePostWithIdAndWithNameBlog) => e.id,
-    );
+    const arrayPostId: string[] = arrayPosts.map((e: Posttyp) => e.id);
 
     /*из таблицы postlike
   достану все записи которые имеют id из 
    массива  arrayPostId .... плюс записи будут отсортированы
   (первая самая новая)*/
 
-    const arrayPostLikeManyPostId: LikeStatusForPostWithId[] =
-      await this.dataSource.query(
-        `
-      
-          SELECT *
-FROM public.postlike plike
-WHERE plike."postId" IN (${arrayPostId.map((id, idx) => `$${idx + 1}`).join(', ')})
- ORDER BY plike."addedAt" DESC   
-    
-      
-      `,
-        arrayPostId,
-      );
+    const arrayPostLikeManyPostId: LikeStatusForPostTyp[] =
+      await this.likeForPostTypRepository
+        .createQueryBuilder('plike')
+        .leftJoin('plike.posttyp', 'posttyp')
+        .where('posttyp.id IN (:...arrayPostId)', { arrayPostId })
+        .orderBy('plike.addedAt', 'DESC')
+        .getMany();
 
     /*в arrayPostLikeManyPostId будет  массив --- если не найдет запись ,  
    тогда ПУСТОЙ МАССИВ,   если найдет запись
    тогда  в массиве будетут обьекты */
 
-    return arrayPosts.map((el: CreatePostWithIdAndWithNameBlog) => {
+    return arrayPosts.map((el: Posttyp) => {
       /*    тут для каждого элемента из массива постов
           будет делатся ВЬЮМОДЕЛЬ которую ожидает 
           фронтенд, внутри будет информация об 
           посте и об лайках к этому посту*/
+
       if (arrayPostLikeManyPostId.length === 0) {
         const viewPostWithInfoLike = this.createViewModelOnePostWithLikeInfo(
           userId,
@@ -262,8 +218,12 @@ WHERE plike."postId" IN (${arrayPostId.map((id, idx) => `$${idx + 1}`).join(', '
         return viewPostWithInfoLike;
       } else {
         const currentPostId = el.id;
+
+        /*из массива с лайкамиСтатусами я выберу только
+        телайкСтатусы которые относятся к одному ПОСТУ*/
+
         const arrayPostLikeForCorrectPost = arrayPostLikeManyPostId.filter(
-          (el: LikeStatusForPostWithId) => el.postId === currentPostId,
+          (el: LikeStatusForPostTyp) => el.posttyp.id === currentPostId,
         );
 
         const viewPostWithInfoLike = this.createViewModelOnePostWithLikeInfo(
@@ -440,64 +400,64 @@ pagesCount это число
         };*/
   }
 
-  async getPostById(postId: string, userId: string | null) {
-    /* найду одну запись post по айдишке, плюс значение
-     * name из таблицы blog  И ДЛЯ ДАННОГО ПОСТА БУДЕТ
-     * СУЩЕСТВОВАТЬ ОДИН БЛОГ И У НЕГО ВОЗМУ ЕГО name ,
-     * это фронту надо инфу отдать  */
-
-    const result = await this.dataSource.query(
-      `
-    select p.*,b.name
-    from public.post p
-    left join public.blog b
-    on p."blogId"=b.id
-    where p.id=$1
-    `,
-      [postId],
-    );
-
-    if (result.length === 0) return null;
-
-    const post: CreatePostWithIdAndWithNameBlog = result[0];
-
-    /* найду все записи из таблицы postlike
-     для текущего поста
-     ------сортировку по полю addedAt
-     -------- сортировка в убывающем порядке , это означает, что самая первая запись будет самой новой записью*/
-
-    const arrayPostLikeForOnePost: LikeStatusForPostWithId[] =
-      await this.dataSource.query(
+  /*  async getPostById(postId: string, userId: string | null) {
+      /!* найду одну запись post по айдишке, плюс значение
+       * name из таблицы blog  И ДЛЯ ДАННОГО ПОСТА БУДЕТ
+       * СУЩЕСТВОВАТЬ ОДИН БЛОГ И У НЕГО ВОЗМУ ЕГО name ,
+       * это фронту надо инфу отдать  *!/
+  
+      const result = await this.dataSource.query(
         `
-    SELECT *
-FROM public.postlike plike
-WHERE plike."postId"=$1
- ORDER BY plike."addedAt" DESC   
-    `,
+      select p.*,b.name
+      from public.post p
+      left join public.blog b
+      on p."blogId"=b.id
+      where p.id=$1
+      `,
         [postId],
       );
-
-    /*в arrayPostLike будет  массив --- если не найдет запись ,
-   тогда ПУСТОЙ МАССИВ,   если найдет запись
-   тогда в массиве будетут  обьекты */
-
-    const viewModelOnePostWithLikeInfo: PostWithLikesInfo =
-      this.createViewModelOnePostWithLikeInfo(
-        userId,
-        post,
-        arrayPostLikeForOnePost,
-      );
-
-    return viewModelOnePostWithLikeInfo;
-  }
+  
+      if (result.length === 0) return null;
+  
+      const post: CreatePostWithIdAndWithNameBlog = result[0];
+  
+      /!* найду все записи из таблицы postlike
+       для текущего поста
+       ------сортировку по полю addedAt
+       -------- сортировка в убывающем порядке , это означает, что самая первая запись будет самой новой записью*!/
+  
+      const arrayPostLikeForOnePost: LikeStatusForPostWithId[] =
+        await this.dataSource.query(
+          `
+      SELECT *
+  FROM public.postlike plike
+  WHERE plike."postId"=$1
+   ORDER BY plike."addedAt" DESC   
+      `,
+          [postId],
+        );
+  
+      /!*в arrayPostLike будет  массив --- если не найдет запись ,
+     тогда ПУСТОЙ МАССИВ,   если найдет запись
+     тогда в массиве будетут  обьекты *!/
+  
+      const viewModelOnePostWithLikeInfo: PostWithLikesInfo =
+        this.createViewModelOnePostWithLikeInfo(
+          userId,
+          post,
+          arrayPostLikeForOnePost,
+        );
+  
+      return viewModelOnePostWithLikeInfo;
+    }*/
 
   createViewModelOnePostWithLikeInfo(
     userId: string | null,
     /* userId чтоб определить статус того 
   пользователя который данный запрос делает */
 
-    post: CreatePostWithIdAndWithNameBlog,
-    arrayPostLikeForOnePost: LikeStatusForPostWithId[],
+    post: Posttyp,
+    arrayPostLikeForOnePost: LikeStatusForPostTyp[],
   ) {
     /* из массива arrayPostLikeForOnePost  найду все
     со статусом Like   and    Dislike*/
@@ -508,8 +468,8 @@ WHERE plike."postId"=$1
         title: post.title,
         shortDescription: post.shortDescription,
         content: post.content,
-        blogId: post.blogId,
-        blogName: post.name,
+        blogId: post.blogtyp.id,
+        blogName: post.blogName,
         createdAt: post.createdAt,
         extendedLikesInfo: {
           likesCount: 0,
@@ -519,10 +479,10 @@ WHERE plike."postId"=$1
         },
       };
     } else {
-      const arrayStatusLike: LikeStatusForPostWithId[] =
+      const arrayStatusLike: LikeStatusForPostTyp[] =
         arrayPostLikeForOnePost.filter((e) => e.likeStatus === LikeStatus.LIKE);
 
-      const arrayStatusDislike: LikeStatusForPostWithId[] =
+      const arrayStatusDislike: LikeStatusForPostTyp[] =
         arrayPostLikeForOnePost.filter(
           (e) => e.likeStatus === LikeStatus.DISLIKE,
         );
@@ -532,7 +492,7 @@ WHERE plike."postId"=$1
  --сортировку я произвел когда все документы
   ЛАЙКСТАТУСДЛЯПОСТОВ из   базыданных доставал */
 
-      const threeDocumentWithLike: LikeStatusForPostWithId[] =
+      const threeDocumentWithLike: LikeStatusForPostTyp[] =
         arrayStatusLike.slice(0, 3);
 
       /*  надо узнать какой статус поставил пользователь данному посту, 
@@ -541,7 +501,9 @@ WHERE plike."postId"=$1
 
       let likeStatusCurrenttUser: LikeStatus;
 
-      const result = arrayPostLikeForOnePost.find((e) => e.userId === userId);
+      const result = arrayPostLikeForOnePost.find(
+        (e) => e.usertyp.id === userId,
+      );
 
       if (!result) {
         likeStatusCurrenttUser = LikeStatus.NONE;
@@ -556,9 +518,9 @@ WHERE plike."postId"=$1
         были установлены самыми крайними*/
 
       const threeLatestLike: NewestLikes[] = threeDocumentWithLike.map(
-        (el: LikeStatusForPostWithId) => {
+        (el: LikeStatusForPostTyp) => {
           return {
-            userId: el.userId,
+            userId: el.usertyp.id,
             addedAt: el.addedAt,
             login: el.login,
           };
@@ -570,8 +532,8 @@ WHERE plike."postId"=$1
         title: post.title,
         shortDescription: post.shortDescription,
         content: post.content,
-        blogId: post.blogId,
-        blogName: post.name,
+        blogId: post.blogtyp.id,
+        blogName: post.blogName,
         createdAt: post.createdAt,
         extendedLikesInfo: {
           likesCount: arrayStatusLike.length,
