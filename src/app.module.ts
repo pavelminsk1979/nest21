@@ -95,6 +95,7 @@ import { Commenttyp } from './feature/comments/domaims/commenttyp.entity';
 import { CommentSqlTypeormRepository } from './feature/comments/reposetories/comment-sql-typeorm-repository';
 import { CommentQuerySqlTypeormRepository } from './feature/comments/reposetories/comment-query-sql-typeorm-repository';
 import { LikeStatusForCommentTyp } from './feature/like-status-for-comment/domain/typ-like-status-for-comment.entity';
+import { TypLikeStatusForCommentSqlRepository } from './feature/like-status-for-comment/repositories/typ-like-status-for-comment-sql-repository';
 
 dotenv.config();
 
@@ -364,6 +365,7 @@ dotenv.config();
     LikeStatusForPostSqlTypeormRepository,
     CommentSqlTypeormRepository,
     CommentQuerySqlTypeormRepository,
+    TypLikeStatusForCommentSqlRepository,
   ],
 })
 /*export class AppModule {} в данном контексте

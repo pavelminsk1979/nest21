@@ -9,15 +9,14 @@ import {
 } from '../../like-status-for-comment/domain/domain-like-status-for-comment';
 import { CreateCommentTyp } from '../api/types/dto';
 import { CommentSqlRepository } from '../reposetories/comment-sql-repository';
-import {
-  LikeStatusForCommentCreate,
-  LikeStatusForCommentCreateWithId,
-} from '../../like-status-for-comment/types/dto';
+import { LikeStatusForCommentCreateTyp } from '../../like-status-for-comment/types/dto';
 import { LikeStatusForCommentSqlRepository } from '../../like-status-for-comment/repositories/like-status-for-comment-sql-repository';
 import { PostSqlTypeormRepository } from '../../posts/repositories/post-sql-typeorm-repository';
 import { UserSqlTypeormRepository } from '../../users/repositories/user-sql-typeorm-repository';
 import { CommentSqlTypeormRepository } from '../reposetories/comment-sql-typeorm-repository';
 import { Commenttyp } from '../domaims/commenttyp.entity';
+import { LikeStatusForCommentTyp } from '../../like-status-for-comment/domain/typ-like-status-for-comment.entity';
+import { TypLikeStatusForCommentSqlRepository } from '../../like-status-for-comment/repositories/typ-like-status-for-comment-sql-repository';
 
 @Injectable()
 /*@Injectable()-декоратор что данный клас
@@ -37,6 +36,7 @@ export class CommentService {
     protected postSqlTypeormRepository: PostSqlTypeormRepository,
     protected userSqlTypeormRepository: UserSqlTypeormRepository,
     protected commentSqlTypeormRepository: CommentSqlTypeormRepository,
+    protected typLikeStatusForCommentSqlRepository: TypLikeStatusForCommentSqlRepository,
   ) {}
 
   async createComment(userId: string, postId: string, content: string) {
@@ -132,8 +132,8 @@ export class CommentService {
      СОЗДАТЬ ТАБЛИЦУ ДЛЯ ЛАЙКОВКОМЕНТАРИЕВ
      ищу в базе ЛайковДляКоментариев  один документ   по  двум полям userId и commentId---*/
 
-    const likeComment: LikeStatusForCommentCreateWithId | null =
-      await this.likeStatusForCommentSqlRepository.findLikeCommentByUserIdAndCommentId(
+    const likeComment: LikeStatusForCommentTyp | null =
+      await this.typLikeStatusForCommentSqlRepository.findLikeCommentByUserIdAndCommentId(
         userId,
         commentId,
       );
@@ -142,14 +142,14 @@ export class CommentService {
       /*Если документа  нет тогда надо cоздать
       новый документ и добавить в базу*/
 
-      const newLikeComment: LikeStatusForCommentCreate = {
+      const newLikeComment: LikeStatusForCommentCreateTyp = {
         userId,
-        commentId,
+        commenttyp: comment,
         likeStatus,
         addedAt: new Date().toISOString(),
       };
 
-      return await this.likeStatusForCommentSqlRepository.createLikeComment(
+      return await this.typLikeStatusForCommentSqlRepository.createLikeComment(
         newLikeComment,
       );
     }
@@ -158,16 +158,14 @@ export class CommentService {
      statusLike в нем на приходящий и установить теперещнюю дату
       установки */
 
-    const currentlikeStatus = likeStatus;
+    const newDate = new Date().toISOString();
 
-    const currentAddedAt = new Date().toISOString();
+    const idLikeComment = likeComment.id;
 
-    const idCurrentLikeComment = likeComment.id;
-
-    return await this.likeStatusForCommentSqlRepository.changeLikeComment(
-      idCurrentLikeComment,
-      currentlikeStatus,
-      currentAddedAt,
+    return await this.typLikeStatusForCommentSqlRepository.setLikeComment(
+      idLikeComment,
+      likeStatus,
+      newDate,
     );
   }
 }

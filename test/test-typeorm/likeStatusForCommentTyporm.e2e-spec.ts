@@ -44,6 +44,8 @@ describe('tests for andpoint auth/logout', () => {
 
   let idPost;
 
+  let idComments;
+
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -154,5 +156,17 @@ describe('tests for andpoint auth/logout', () => {
       })
       .expect(201);
     console.log(res.body);
+
+    idComments = res.body.id;
+  });
+
+  it('set likeStatusForComment ', async () => {
+    const res = await request(app.getHttpServer())
+      .put(`/comments/${idComments}/like-status`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        likeStatus: 'Like',
+      })
+      .expect(204);
   });
 });
