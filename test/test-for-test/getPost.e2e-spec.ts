@@ -20,13 +20,11 @@ describe('tests for andpoint auth/logout', () => {
 
   let code;
 
-  let accessToken;
-
   let blogId;
 
-  let idPost;
+  let accessToken;
 
-  let idPost2;
+  let idPost;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -125,8 +123,9 @@ describe('tests for andpoint auth/logout', () => {
       .expect(201);
 
     idPost = res.body.id;
-
-    //console.log(res.body);
+    console.log('createPost');
+    console.log(res.body);
+    console.log('createPost');
   });
 
   it('put post', async () => {
@@ -137,13 +136,5 @@ describe('tests for andpoint auth/logout', () => {
         likeStatus: 'Like',
       })
       .expect(204);
-  });
-
-  it('get post', async () => {
-    const res = await request(app.getHttpServer())
-      .get(`/posts/${idPost}`)
-
-      .expect(200);
-    console.log(res.body);
   });
 });

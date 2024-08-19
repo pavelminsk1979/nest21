@@ -142,6 +142,7 @@ export class SaBlogController {
     @Body() createPostForBlogInputModel: CreatePostForBlogInputModel,
     @Req() request: Request,
   ) {
+    debugger;
     /* чтобы переиспользовать в этом обработчике метод
  getPostById  ему нужна (userId)- она будет 
  в данном случае null но главное что удовлетворяю
@@ -178,46 +179,6 @@ export class SaBlogController {
       );
     }
   }
-
-  /*  @UseGuards(AuthGuard, DataUserExtractorFromTokenGuard)
-    @Post(':blogId/posts')
-    async createPostFortBlog(
-      @Param('blogId') blogId: string,
-      @Body() createPostForBlogInputModel: CreatePostForBlogInputModel,
-      @Req() request: Request,
-    ): Promise<PostWithLikesInfo | null> {
-      /!* чтобы переиспользовать в этом обработчике метод
-   getPostById  ему нужна (userId)- она будет 
-   в данном случае null но главное что удовлетворяю
-   метод значением-userId*!/
-  
-      const userId: string | null = request['userId'];
-  
-      /!* создать новый пост ДЛЯ КОНКРЕТНОГО БЛОГА и вернут
-       данные этого поста и также структуру 
-      данных(снулевыми значениями)  о лайках к этому посту*!/
-  
-      const postId: string | null = await this.commandBus.execute(
-        new CreatePostForBlogCommand(blogId, createPostForBlogInputModel),
-      );
-  
-      if (!postId) {
-        throw new NotFoundException(
-          'Not found blog- ' + ':method-post,url -blogs/:blogId /post',
-        );
-      }
-  
-      const post: PostWithLikesInfo | null =
-        await this.postQuerySqlRepository.getPostById(postId, userId);
-  
-      if (post) {
-        return post;
-      } else {
-        throw new NotFoundException(
-          'Not create post- ' + ':method-post,url -blogs/:blogId /post',
-        );
-      }
-    }*/
 
   @UseGuards(AuthGuard)
   @Get(':blogId/posts')

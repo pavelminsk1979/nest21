@@ -167,6 +167,8 @@ pagesCount это число
 
     /* найду все записи из таблицы LikeStatusForPostTyp
     для текущего поста по postId
+    и должно быть добавлено ЗАДЖОЙНЕНО
+    ИНФА ЮЗЕРА_АМ АЙДИШКА ПОНАДОБИТСЯ
     ------сортировку по полю addedAt
     -------- сортировка в убывающем порядке , это означает, что самая
     первая запись будет самой новой записью*/
@@ -174,7 +176,7 @@ pagesCount это число
     const arrayLikeStatusForPostTypByPostId: LikeStatusForPostTyp[] =
       await this.likeForPostTypRepository
         .createQueryBuilder('plike')
-        .leftJoin('plike.posttyp', 'posttyp')
+        .leftJoinAndSelect('plike.usertyp', 'u')
         .where('plike.posttyp.id = :postId', { postId })
         .orderBy('plike.addedAt', 'DESC')
         .getMany();
@@ -515,9 +517,9 @@ pagesCount это число
 
       let likeStatusCurrenttUser: LikeStatus;
 
-      const result = arrayPostLikeForOnePost.find(
-        (e) => e.usertyp.id === userId,
-      );
+      const result = arrayPostLikeForOnePost.find((e) => {
+        return e.usertyp.id === userId;
+      });
 
       if (!result) {
         likeStatusCurrenttUser = LikeStatus.NONE;
