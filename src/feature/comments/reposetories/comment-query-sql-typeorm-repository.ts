@@ -188,7 +188,7 @@ if (sortDirection === 'asc') {
     } else {
       sortDir = 'DESC';
     }
-
+    debugger;
     const result: [Commenttyp[], number] = await this.commenttypormRepository
       .createQueryBuilder('com')
       .leftJoinAndSelect('com.posttyp', 'p')
@@ -197,7 +197,7 @@ if (sortDirection === 'asc') {
       .skip(amountSkip)
       .take(pageSize)
       .getManyAndCount();
-
+    debugger;
     const totalCount = result[1];
 
     /*
@@ -221,10 +221,10 @@ pagesCount это число
 далее перед отправкой на фронтенд- приведу к тому виду
 который ожидает  фронтенд
 */
-
+    debugger;
     const viewArrayComments: CommentWithLikeInfo[] =
       await this.createViewArrayComments(userId, result[0]);
-
+    debugger;
     return {
       pagesCount,
       page: pageNumber,
@@ -241,32 +241,27 @@ pagesCount это число
     /* из arrayComments( массив коментариев )
  - достану из каждого комента  id(aйдишку )
  буду иметь массив айдишек */
-
     const arrayCommentId: string[] = arrayComments.map((e: Commenttyp) => e.id);
-
     /*из таблицы LikeStatusForCommentTyp
  достану все записи которые имеют id из 
   массива  arrayCommentId .... плюс записи будут отсортированы
  (первая самая новая)*/
-
     const arrayCommentLikeManyCoomentId: LikeStatusForCommentTyp[] =
       await this.likeForCommentTypRepository
         .createQueryBuilder('comLike')
-        .leftJoin('comLike.commenttyp', 'commenttyp')
+        .leftJoinAndSelect('comLike.commenttyp', 'commenttyp')
         .where('commenttyp.id IN (:...arrayCommentId)', { arrayCommentId })
         .orderBy('comLike.addedAt', 'DESC')
         .getMany();
-
-    /*в arrayCommentLikeManyPostId будет  массив --- если не найдет запись ,  
+    /*в arrayCommentLikeManyCoomentId будет  массив --- если не найдет запись ,
    тогда ПУСТОЙ МАССИВ,   если найдет запись
    тогда  в массиве будетут обьекты */
-
     return arrayComments.map((el: Commenttyp) => {
       /*    тут для каждого элемента из массива постов
         будет делатся ВЬЮМОДЕЛЬ которую ожидает 
         фронтенд, внутри будет информация об 
         посте и об лайках к этому посту*/
-
+      debugger;
       if (arrayCommentLikeManyCoomentId.length === 0) {
         const viewCommentWithInfoLike =
           this.createViewModelOneCommentWithLikeInfo(
@@ -281,12 +276,10 @@ pagesCount это число
         /*из массива с лайкамиСтатусами я выберу только
         телайкСтатусы которые относятся к одному 
         КОМЕНТАРИЮ*/
-
         const arrayCommentLikeForCorrectComment =
           arrayCommentLikeManyCoomentId.filter(
             (el) => el.commenttyp.id === currentCommentId,
           );
-
         const viewCommentWithInfoLike =
           this.createViewModelOneCommentWithLikeInfo(
             userId,
@@ -328,28 +321,23 @@ pagesCount это число
         arrayCommentLikeForCorrectComment.filter(
           (e) => e.likeStatus === LikeStatus.LIKE,
         );
-
       const arrayStatusDislike: LikeStatusForCommentTyp[] =
         arrayCommentLikeForCorrectComment.filter(
           (e) => e.likeStatus === LikeStatus.DISLIKE,
         );
-
       /*  надо узнать какой статус поставил пользователь данному посту, тот пользователь
        который данный запрос делает - его 
        айдишка  имеется */
 
       let likeStatusCurrenttUser: LikeStatus;
-
       const result = arrayCommentLikeForCorrectComment.find(
         (e) => e.userId === userId,
       );
-
       if (!result) {
         likeStatusCurrenttUser = LikeStatus.NONE;
       } else {
         likeStatusCurrenttUser = result.likeStatus;
       }
-
       return {
         id: comment.id,
         content: comment.content,

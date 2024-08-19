@@ -25,15 +25,26 @@ describe('tests ', () => {
     await app.close();
   });
 
-  it('get post', async () => {
+  it('get comments for correct post', async () => {
+    const idPost = 'd5ed6a6b-b8e7-4d8b-b1e4-0be3033ba6e4';
     const res = await request(app.getHttpServer())
-      .get('/posts')
+      .get(`/posts/${idPost}/comments`)
 
       .expect(200);
-    console.log('get posts');
+    console.log('get comments for correct post');
     console.log(res.body);
-    console.log('get posts');
+    console.log('get comments for correct post');
   });
+
+  /*  it('get post', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/posts')
+  
+        .expect(200);
+      console.log('get posts');
+      console.log(res.body);
+      console.log('get posts');
+    });*/
 
   /*  it('get post', async () => {
       const idPost = '498f56a2-6612-4eaf-9375-e2507e5866ef';
