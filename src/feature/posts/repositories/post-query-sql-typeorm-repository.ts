@@ -202,7 +202,10 @@ pagesCount это число
 
     const arrayPostId: string[] = arrayPosts.map((e: Posttyp) => e.id);
 
-    /*из таблицы postlike
+    /*
+    НАДО ЗАДЖОЙНИТЬ ДАННЫЕ ЮЗЕРА ЧТОБ АЙДИШКУ
+    ДОСТАТЬ
+    из таблицы LikeStatusForPostTyp
   достану все записи которые имеют id из 
    массива  arrayPostId .... плюс записи будут отсортированы
   (первая самая новая)*/
@@ -210,7 +213,8 @@ pagesCount это число
     const arrayPostLikeManyPostId: LikeStatusForPostTyp[] =
       await this.likeForPostTypRepository
         .createQueryBuilder('plike')
-        .leftJoin('plike.posttyp', 'posttyp')
+        .leftJoinAndSelect('plike.posttyp', 'posttyp')
+        .leftJoinAndSelect('plike.usertyp', 'usertyp')
         .where('posttyp.id IN (:...arrayPostId)', { arrayPostId })
         .orderBy('plike.addedAt', 'DESC')
         .getMany();
@@ -224,7 +228,7 @@ pagesCount это число
           будет делатся ВЬЮМОДЕЛЬ которую ожидает 
           фронтенд, внутри будет информация об 
           посте и об лайках к этому посту*/
-
+      debugger;
       if (arrayPostLikeManyPostId.length === 0) {
         const viewPostWithInfoLike = this.createViewModelOnePostWithLikeInfo(
           userId,
@@ -255,6 +259,7 @@ pagesCount это число
   async getPostsByCorrectBlogId(
     blogId: string,
     queryParams: QueryParamsInputModel,
+    userId: string | null,
   ) {
     ///надо проверить существует ли такой blog
 
@@ -333,7 +338,7 @@ pageSize - размер  одной страницы, ПО УМОЛЧАНИЮ 10
       .skip(amountSkip)
       .take(pageSize)
       .getManyAndCount();
-
+    debugger;
     /*    result: [Blogtyp[], number]     возвращает кортеж, 
   где первый элемент - массив объектов, удовлетворяющих
    запросу, а второй элемент - общее количество записей
@@ -368,27 +373,10 @@ pagesCount это число
 
 */
 
-    //////////////////////////////////////////////////
-    //временный короткий вариант
-    ////////////////////////////////
-
-    const viewArrayPosts: PostWithLikesInfo[] = result[0].map((el: Posttyp) => {
-      return {
-        id: el.id,
-        title: el.title,
-        shortDescription: el.shortDescription,
-        content: el.content,
-        blogId: el.blogtyp.id,
-        blogName: el.blogName,
-        createdAt: el.createdAt,
-        extendedLikesInfo: {
-          likesCount: 0,
-          dislikesCount: 0,
-          myStatus: LikeStatus.NONE,
-          newestLikes: [],
-        },
-      };
-    });
+    const viewArrayPosts: PostWithLikesInfo[] = await this.createViewArrayPosts(
+      userId,
+      result[0],
+    );
 
     return {
       pagesCount,
@@ -397,23 +385,6 @@ pagesCount это число
       totalCount,
       items: viewArrayPosts,
     };
-
-    /////////////////////////////////////////////////////
-    //то что ниже может понадобится
-    ////////////////////////////////////////////////
-
-    /*    const viewArrayPosts: PostWithLikesInfo[] = await this.createViewArrayPosts(
-          userId,
-          result,
-        );
-    
-        return {
-          pagesCount,
-          page: pageNumber,
-          pageSize: pageSize,
-          totalCount,
-          items: viewArrayPosts,
-        };*/
   }
 
   /*  async getPostById(postId: string, userId: string | null) {
@@ -495,6 +466,7 @@ pagesCount это число
         },
       };
     } else {
+      debugger;
       const arrayStatusLike: LikeStatusForPostTyp[] =
         arrayPostLikeForOnePost.filter((e) => e.likeStatus === LikeStatus.LIKE);
 

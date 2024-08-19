@@ -26,13 +26,23 @@ describe('tests ', () => {
   });
 
   it('get post', async () => {
-    const idPost = '498f56a2-6612-4eaf-9375-e2507e5866ef';
     const res = await request(app.getHttpServer())
-      .get(`/posts/${idPost}`)
+      .get('/posts')
 
       .expect(200);
-    console.log('get postByPostId');
+    console.log('get posts');
     console.log(res.body);
-    console.log('get postByPostId');
+    console.log('get posts');
   });
+
+  /*  it('get post', async () => {
+      const idPost = '498f56a2-6612-4eaf-9375-e2507e5866ef';
+      const res = await request(app.getHttpServer())
+        .get(`/posts/${idPost}`)
+  
+        .expect(200);
+      console.log('get postByPostId');
+      console.log(res.body);
+      console.log('get postByPostId');
+    });*/
 });

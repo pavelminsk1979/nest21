@@ -27,6 +27,8 @@ import { DataUserExtractorFromTokenGuard } from '../../../common/guard/data-user
 import { CreatePostInputModel } from './pipes/create-post-input-model';
 import { PostQuerySqlTypeormRepository } from '../repositories/post-query-sql-typeorm-repository';
 import { CommentQuerySqlTypeormRepository } from '../../comments/reposetories/comment-query-sql-typeorm-repository';
+import { SortDir } from '../../blogs/api/types/dto';
+import { Posttyp } from '../domains/posttyp.entity';
 
 @Controller('posts')
 export class PostsController {

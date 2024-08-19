@@ -6,6 +6,8 @@ import {
   Param,
   Post,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ViewModelWithArrayPosts } from '../../posts/api/types/views';
 import { CommandBus } from '@nestjs/cqrs';
@@ -14,6 +16,7 @@ import { CreateBlogInputModel } from './pipes/create-blog-input-model';
 import { CreateBlogCommand } from '../services/create-blog-service';
 import { BlogQuerySqlTypeormRepository } from '../repositories/blog-query-sql-typeorm-repository';
 import { PostQuerySqlTypeormRepository } from '../../posts/repositories/post-query-sql-typeorm-repository';
+import { DataUserExtractorFromTokenGuard } from '../../../common/guard/data-user-extractor-from-token-guard';
 
 @Controller('blogs')
 export class BlogController {
@@ -146,19 +149,19 @@ export class BlogController {
       }
     }*/
 
-  //@UseGuards(DataUserExtractorFromTokenGuard)
+  @UseGuards(DataUserExtractorFromTokenGuard)
   @Get(':blogId/posts')
   async getPostsForBlog(
     @Param('blogId') blogId: string,
     @Query() queryParamsPostForBlogInputModel: QueryParamsInputModel,
-    //@Req() request: Request,
+    @Req() request: Request,
   ): Promise<ViewModelWithArrayPosts> {
     /*Айдишка пользователя нужна для-- когда
     отдадим ответ в нем дудет информация 
     о том какой статус учтановил данный пользователь
     который этот запрос делает */
 
-    //const userId: string | null = request['userId'];
+    const userId: string | null = request['userId'];
 
     //вернуть все posts(массив) для корректного блога
     //и у каждого поста  будут данные о лайках
@@ -167,6 +170,7 @@ export class BlogController {
       await this.postQuerySqlTypeormRepository.getPostsByCorrectBlogId(
         blogId,
         queryParamsPostForBlogInputModel,
+        userId,
       );
 
     if (posts) {
