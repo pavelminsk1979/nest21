@@ -388,6 +388,7 @@ pagesCount это число
   }
 
   /*  async getPostById(postId: string, userId: string | null) {
+  1
       /!* найду одну запись post по айдишке, плюс значение
        * name из таблицы blog  И ДЛЯ ДАННОГО ПОСТА БУДЕТ
        * СУЩЕСТВОВАТЬ ОДИН БЛОГ И У НЕГО ВОЗМУ ЕГО name ,
